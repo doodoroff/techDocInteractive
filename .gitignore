@@ -1,0 +1,7 @@
+# ignore dir
+obj/
+bin/
+.vs/
+
+# ignore file
+9fyD.gif
