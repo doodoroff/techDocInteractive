@@ -1,0 +1,34 @@
+﻿<Window x:Name="settingsWindow"
+        x:Class="TechDocInteractive.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TechDocInteractive"
+        mc:Ignorable="d"
+        Title="Настройки" Height="450" Width="800">
+    <Grid>
+        <TabControl>
+            <TabItem Header="Пути к файлам">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="buttonColumn" Width="120" MinWidth="105"/>
+                        <ColumnDefinition x:Name="textBoxColumn" Width="360" MinWidth="355"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Vertical" Height="Auto" Grid.Column="0" HorizontalAlignment="Left">
+                        <Button x:Name="openToolBaseButton" Content="Инстр. SpCam" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="100" Click="OpenToolBaseButton_Click" Height="25"/>
+                        <Button x:Name="openInsertBaseButton" Content="Пластины (.xlsx)" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Width="100" Height="25" Click="OpenInsertBaseButton_Click"/>
+                        <Button x:Name="openColletBaseButton" Content="Цанги (.xlsx)" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Width="100" Height="25" Click="OpenColletBaseButton_Click"/>
+                        <Button x:Name="openMillBaseButton" Content="Фрезы (.xlsx)" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Width="100" Height="25" Click="OpenMillBaseButton_Click"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical" Height="Auto" Grid.Column="1" HorizontalAlignment="Left">
+                        <TextBox x:Name="textBox_BaseFilePath" HorizontalAlignment="Left" Height="24" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="347" IsEnabled="True"/>
+                        <TextBox x:Name="textbox_InsertFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="347" IsEnabled="True"/>
+                        <TextBox x:Name="textbox_ColletFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="347" IsEnabled="True"/>
+                        <TextBox x:Name="textbox_MillFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="347" IsEnabled="True"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

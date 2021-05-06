@@ -19,6 +19,7 @@ namespace TechDocInteractive
         public int SourceNumberOfTeeth { get; set; }
         public double SourceToolOverhang { get; set; }
         public string SourceHolderName { get; set; }
+        public string SourceToolStorageInfo { get; set; }
         public List<string> SourceInsertNames1 { get; set; }
         public List<string> SourceInsertNames2 { get; set; }
         public List<string> SourceColletNames { get; set; }

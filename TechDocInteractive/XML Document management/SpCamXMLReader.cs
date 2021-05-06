@@ -10,23 +10,22 @@ namespace TechDocInteractive
 {
     class SpCamXMLReader
     {
-        List<Tool> projectTools;
+        List<ToolSet> projectTools;
         Operation operation;
         Setup setup;
         Shift shift;
-        //string filePath;
         XmlDocument xmlDocument;
         XPathNavigator xPathNavigator;
         string techFolderText = "";
 
         public SpCamXMLReader(string filePath)
         {
-            this.projectTools = new List<Tool>();
+            this.projectTools = new List<ToolSet>();
             this.operation = new Operation();
-            //this.filePath = filePath;
             xmlDocument = new XmlDocument();
             xmlDocument.Load(filePath);
             this.xPathNavigator = xmlDocument.CreateNavigator();
+
             if (XmlDocumentHaveRightFormat())
             {
                 ReadXML();
@@ -37,20 +36,9 @@ namespace TechDocInteractive
             }
         }
 
-        public List<Tool> ProjectToolList
-        {
-            get { return projectTools; }
-        }
-
-        public Operation OperationDescription
-        {
-            get { return operation; }
-        }
-
         bool XmlDocumentHaveRightFormat()
         {
-            //xPathNavigator.MoveToRoot();
-            if(xmlDocument.DocumentElement.Name.Equals("StcxProject"))
+            if (xmlDocument.DocumentElement.Name.Equals("StcxProject"))
             {
                 return true;
             }
@@ -59,9 +47,6 @@ namespace TechDocInteractive
 
         void ReadXML()
         {
-            //xmlDocument = new XmlDocument();
-            //xmlDocument.Load(filePath);
-            //xPathNavigator = xmlDocument.CreateNavigator();
             XmlNode customDataNode = xmlDocument.SelectSingleNode("StcxProject/CustomData");
             XmlAttributeCollection customDataAttributes = customDataNode.LastChild.Attributes;
             operation.DetailName = customDataAttributes[1].Value;
@@ -71,7 +56,7 @@ namespace TechDocInteractive
 
             while (xPathOpXmlParamsIterator.MoveNext() && xPathTechnologyIterator.MoveNext())
             {
-                Tool currentOperationTool = new Tool();
+                ToolSet currentOperationTool = new ToolSet();
                 XPathNavigator currentOpXmlParamsNode = xPathOpXmlParamsIterator.Current;
                 XPathNavigator currentTechnologyNode = xPathTechnologyIterator.Current;
 
@@ -80,11 +65,6 @@ namespace TechDocInteractive
                     currentOpXmlParamsNode.MoveToChild("Name", "");
                     operation.MachinetoolName = currentOpXmlParamsNode.Value;
                     currentOpXmlParamsNode.MoveToParent();
-                    /*currentOpXmlParamsNode.MoveToChild("RTKParameters", "");
-                    currentOpXmlParamsNode.MoveToChild("DetailName", "");
-                    operation.DetailName = currentOpXmlParamsNode.Value;
-                    currentOpXmlParamsNode.MoveToParent();
-                    currentOpXmlParamsNode.MoveToParent();*/
 
                     xPathOpXmlParamsIterator.MoveNext(); // Rewind to same operation position as xPathTechnologyIterator
                 }
@@ -101,6 +81,7 @@ namespace TechDocInteractive
                         {
                             setup.AddShift(shift);
                             operation.AddSetup(setup);
+                            shift = null;
                         }
 
                         this.setup = new Setup();
@@ -139,7 +120,7 @@ namespace TechDocInteractive
             return false;
         }
 
-        void GetTechnologyInfo(Tool currentOperationTool, XPathNavigator currentOpXmlParamsNode, XPathNavigator currentTechnologyNode, Setup currentSetup)
+        void GetTechnologyInfo(ToolSet currentOperationTool, XPathNavigator currentOpXmlParamsNode, XPathNavigator currentTechnologyNode, Setup currentSetup)
         {
             if (setup == null) 
             {
@@ -181,14 +162,15 @@ namespace TechDocInteractive
 
         void ReadTechDescriptionFromTechnologySection(XPathNavigator currentTechnologyNode, Shift shift)
         {
-            shift.MachiningTime += ParceTechDescription(currentTechnologyNode.GetAttribute("MachiningTime", ""));
-            shift.AuxiliaryTime += ParceTechDescription(currentTechnologyNode.GetAttribute("RapidTime", "")) +
-                                   ParceTechDescription(currentTechnologyNode.GetAttribute("IdlingTime", "")) +
-                                   ParceTechDescription(currentTechnologyNode.GetAttribute("AuxiliaryTime", ""));
-            shift.ToolPath += ParceTechDescription(currentTechnologyNode.GetAttribute("ToolpathLength", ""));
+            shift.AddMachiningTime(currentTechnologyNode.GetAttribute("MachiningTime", ""));
+            shift.AddRapidTime(currentTechnologyNode.GetAttribute("RapidTime", ""));
+            shift.AddIdlingTime(currentTechnologyNode.GetAttribute("IdlingTime", ""));
+            shift.AddWorkingTime(currentTechnologyNode.GetAttribute("WorkTime", ""));
+            shift.AddAuxiliaryTime(currentTechnologyNode.GetAttribute("AuxiliaryTime", ""));
+            shift.AddToolPath(currentTechnologyNode.GetAttribute("ToolpathLength", ""));
         }
 
-        double ParceTechDescription(string techDiscription)
+        /*double ParceTechDescription(string techDiscription)
         {
             if (techDiscription.Equals(""))
             {
@@ -204,11 +186,11 @@ namespace TechDocInteractive
             }
             catch (Exception)
             {
-                throw new AppXmlAnalyzerExceptions("Не верный формат числа технологических параметров");
+                throw new AppXmlAnalyzerExceptions("Технологический параметр " + formatedTechDiscription + " имеет не верный формат числа");
             }
 
             return parcedValue;
-        }
+        }*/
 
         XPathNodeIterator CreateSectionIterator(string sectionName)
         {
@@ -219,7 +201,7 @@ namespace TechDocInteractive
             return xPathXmlIterator;
         }
 
-        void GetToolInfoFromTechnologySection(Tool currentOperationTool, XPathNavigator currentTechnologyNode)
+        void GetToolInfoFromTechnologySection(ToolSet currentOperationTool, XPathNavigator currentTechnologyNode)
         {
             currentTechnologyNode.MoveToChild("OperationType", "");
             if (currentTechnologyNode.Value.Equals("TSTTechMillOpGroupFin"))
@@ -241,7 +223,7 @@ namespace TechDocInteractive
             currentTechnologyNode.MoveToParent();
         }
 
-        void GetToolInfoFromOpXmlParamsSection(Tool currentOperationTool, XPathNavigator currentOpXmlParamsNode)
+        void GetToolInfoFromOpXmlParamsSection(ToolSet currentOperationTool, XPathNavigator currentOpXmlParamsNode)
         {
             if (currentOperationTool.CustomTool)
             {
@@ -253,7 +235,7 @@ namespace TechDocInteractive
             }
         }
 
-        void GetHolderInfoFromOpXmlParamsSection(Tool currentOperationTool, XPathNavigator currentOpXmlParamsNode)
+        void GetHolderInfoFromOpXmlParamsSection(ToolSet currentOperationTool, XPathNavigator currentOpXmlParamsNode)
         {
             currentOpXmlParamsNode.MoveToChild("ToolSection", "");
             currentOpXmlParamsNode.MoveToChild("Tools", "");
@@ -270,7 +252,7 @@ namespace TechDocInteractive
             currentOpXmlParamsNode.MoveToParent();
         }
 
-        void ReadCustomToolOpXmlParamsCode(XPathNavigator currentOperationNode, Tool currentOperationTool)
+        void ReadCustomToolOpXmlParamsCode(XPathNavigator currentOperationNode, ToolSet currentOperationTool)
         {
             currentOperationNode.MoveToChild("ToolSection", "");
             currentOperationNode.MoveToChild("Tools", "");
@@ -320,7 +302,7 @@ namespace TechDocInteractive
             currentOperationNode.MoveToParent();
         }
 
-        void ReadToolOpXmlParamsCode(XPathNavigator currentOperationNode, Tool currentOperationTool)
+        void ReadToolOpXmlParamsCode(XPathNavigator currentOperationNode, ToolSet currentOperationTool)
         {
             currentOperationNode.MoveToChild("ToolSection", "");
             currentOperationNode.MoveToChild("Tools", "");
@@ -376,7 +358,7 @@ namespace TechDocInteractive
             currentOperationNode.MoveToParent();
         }
 
-        void ReadAndCalculateHolderAndTailLength(Tool currentOperationTool, XPathNavigator currentOpXmlParamsNode)
+        void ReadAndCalculateHolderAndTailLength(ToolSet currentOperationTool, XPathNavigator currentOpXmlParamsNode) // TO DO Refactoring, transfer to ToolSet class ?
         {
             XPathNodeIterator xPathHolderStepsIterator = currentOpXmlParamsNode.SelectChildren(currentOpXmlParamsNode.NodeType);
             double toolSetLength = 0;
@@ -410,6 +392,16 @@ namespace TechDocInteractive
 
             currentOperationTool.HolderLength = toolSetLength + holderNeckLength;
             currentOperationTool.TailOverhang = tailOverhang;
+        }
+
+        public List<ToolSet> ProjectToolList
+        {
+            get { return projectTools; }
+        }
+
+        public Operation OperationDescription
+        {
+            get { return operation; }
         }
     }
 }

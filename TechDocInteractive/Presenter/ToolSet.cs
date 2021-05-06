@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace TechDocInteractive
 {
-    class Tool: IEquatable<Tool>
+    class ToolSet: IEquatable<ToolSet>
     {
         int positionNumber;
         string name;
@@ -28,7 +28,7 @@ namespace TechDocInteractive
         string holderName;
         string catalogInsertPattern1, catalogInsertPattern2;
         string fromSpindelSideInterface;
-        string fromCutSideInterface;
+        string fromCutSideInterface; // TO DO Refactoring, necessity ?
         string holderSpindelSideInterface;
         string holderCutSideInterface;
 
@@ -53,7 +53,18 @@ namespace TechDocInteractive
                     {
                         case "TrimAngle":
                             {
-                                return "Фреза для больших подач";
+                                if (angle <= 45 && diameter > 32 && workingLength <= 8)
+                                {
+                                    return "Торцевая фреза";
+                                }
+                                else if (angle >= 70)
+                                {
+                                    return "Фреза для больших подач";
+                                }
+                                else
+                                {
+                                    return "Фреза с угловой реж. кромкой";
+                                }
                             }
                         case "EndMill":
                             {
@@ -61,7 +72,7 @@ namespace TechDocInteractive
                             }
                         case "Angle":
                             {
-                                return "Угловая фреза";
+                                return "Фреза с угловой реж. кромкой";
                             }
                         case "Torus":
                             {
@@ -246,13 +257,14 @@ namespace TechDocInteractive
             }
 
             string formatedCatalogInsertPattern = FormatCatalogInsertPattern(catalogInsertPattern);
+            string formatedCatalogEdgeRadius = FormatCatalogEdgeRadius(edgeRadius.ToString());
 
             string splitString = "..";
             string[] catalogInsertPatternsParts = formatedCatalogInsertPattern.Split(new string[] { splitString }, StringSplitOptions.None);
             string pattern;
             if (catalogInsertPatternsParts.Length > 1)
             {
-                //XO...X10T3 pattern with 0.8 radius example: ((XO\S*\s*\d*\s*08\S*\s*\d*\s*X10T3)|(XO\S*\s*\d*\s*X10T3\S*\s*\d*\s*08\D))
+                //XO...X10T3 pattern with 0.8 radius example (no "space" char in string): ((XO\S*\s*\d*\s*08\S*\s*\d*\s*X10T3)|(XO\S*\s*\d*\s*X10T3\S*\s*\d*\s*08\D))
 
                 pattern = "((" +
                             catalogInsertPatternsParts[0] +
@@ -275,7 +287,7 @@ namespace TechDocInteractive
             }
             else
             {
-                pattern = "(" + catalogInsertPatternsParts[0] + @"\s*\S*\d*\s*" + edgeRadius.ToString().Replace(",", "") + ")";
+                pattern = "(" + catalogInsertPatternsParts[0] + @"\S*\d" + formatedCatalogEdgeRadius + "[SPERMT-]" + ")";
             }
 
             return pattern;
@@ -284,6 +296,18 @@ namespace TechDocInteractive
         string FormatCatalogInsertPattern(string catalogInsertPattern)
         {
             return catalogInsertPattern.Replace(" ", "");
+        }
+
+        string FormatCatalogEdgeRadius(string catalogEdgeRadius)
+        {
+            string formatedEdgeRadius = catalogEdgeRadius.Replace(",", "");
+
+            if (catalogEdgeRadius.First().Equals('0'))
+            {
+                formatedEdgeRadius = formatedEdgeRadius.Remove(0, 1);
+            }
+
+            return formatedEdgeRadius;
         }
 
         public string FromSpindelSideInterface
@@ -302,24 +326,41 @@ namespace TechDocInteractive
         {
             if (fromSpindelSideInterface != "")
             {
+                string spindelSideInterfaceDiametr = ExtractDiameterValueFromInterface(fromSpindelSideInterface);
+                string cutSideInterfaceDiametr = ExtractDiameterValueFromInterface(holderCutSideInterface);
+
                 if (holderCutSideInterface.Contains("ER") )
                 {
                     if (fromSpindelSideInterface.Contains("MCH"))
                     {
-                        return "1810" + holderCutSideInterface.Remove(0, holderCutSideInterface.Length - 2) + fromSpindelSideInterface.Remove(0, fromSpindelSideInterface.Length - 2);
+                        return "1810" + cutSideInterfaceDiametr + spindelSideInterfaceDiametr;
                     }
                     else
                     {
-                        return fromSpindelSideInterface.Remove(0, fromSpindelSideInterface.Length - 2) + holderCutSideInterface;
+                        return spindelSideInterfaceDiametr + holderCutSideInterface;
                     }
                 }
 
                 if (holderCutSideInterface.Contains("D"))
                 {
-                    return "05F5832" + holderCutSideInterface.Remove(0, 1) + fromSpindelSideInterface.Remove(0, fromSpindelSideInterface.Length - 2);
+                    return "05F5832" + cutSideInterfaceDiametr + spindelSideInterfaceDiametr;
+                }
+
+                if (holderCutSideInterface.Contains("ERHP"))
+                {
+                    return "5672S" + cutSideInterfaceDiametr + spindelSideInterfaceDiametr;
                 }
             }
             return "";
+        }
+
+        string ExtractDiameterValueFromInterface(string holderInterface)
+        {
+            if (holderInterface != "" && holderCutSideInterface != "") 
+            {
+                return holderInterface.Remove(0, holderInterface.Length - 2);
+            }
+            return "0";
         }
 
         public string HolderSpindelSideInterface
@@ -336,7 +377,7 @@ namespace TechDocInteractive
             set { holderCutSideInterface = value; }
         }
 
-        public bool Equals(Tool other)
+        public bool Equals(ToolSet other)
         {
             return positionNumber.Equals(other.positionNumber);
         }
@@ -348,7 +389,7 @@ namespace TechDocInteractive
                 return false;
             }
 
-            Tool ToolObj = obj as Tool;
+            ToolSet ToolObj = obj as ToolSet;
             if (ToolObj == null)
             {
                 return false;

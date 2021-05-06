@@ -35,12 +35,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EPPlus, Version=4.5.3.3, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.4.5.3.3\lib\net40\EPPlus.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -59,24 +64,29 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AppSettings.cs" />
-    <Compile Include="AppXmlAnalyzerExceptions.cs" />
-    <Compile Include="Collet.cs" />
-    <Compile Include="CsvRedactor.cs" />
-    <Compile Include="CsvToolData.cs" />
-    <Compile Include="ExcelRedactor.cs" />
-    <Compile Include="ExcelTool.cs" />
-    <Compile Include="ExcelToolInfoReader.cs" />
-    <Compile Include="Holder.cs" />
-    <Compile Include="Insert.cs" />
-    <Compile Include="Setup.cs" />
-    <Compile Include="Shift.cs" />
-    <Compile Include="SpCamToolBaseReader.cs" />
-    <Compile Include="SpCamXMLReader.cs" />
-    <Compile Include="Tool.cs" />
-    <Compile Include="ToolInfo.cs" />
-    <Compile Include="ToolInfoPresenter.cs" />
-    <Compile Include="WaitWindow.xaml.cs">
+    <Compile Include="AppSettings\AppSettings.cs" />
+    <Compile Include="AppSettings\AppXmlAnalyzerExceptions.cs" />
+    <Compile Include="AppWindows\SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Excel Document management\ReportBorderStyle.cs" />
+    <Compile Include="Presenter\ToolType.cs" />
+    <Compile Include="Tooling\Collet.cs" />
+    <Compile Include="SpCam toolBase mangement\CsvRedactor.cs" />
+    <Compile Include="SpCam toolBase mangement\CsvTool.cs" />
+    <Compile Include="Excel Document management\ExcelRedactor.cs" />
+    <Compile Include="Excel Document management\ExcelTool.cs" />
+    <Compile Include="Excel Document management\ExcelToolInfoReader.cs" />
+    <Compile Include="Tooling\Holder.cs" />
+    <Compile Include="Tooling\Insert.cs" />
+    <Compile Include="Operation Info\Setup.cs" />
+    <Compile Include="Operation Info\Shift.cs" />
+    <Compile Include="SpCam toolBase mangement\SpCamToolBaseReader.cs" />
+    <Compile Include="XML Document management\SpCamXMLReader.cs" />
+    <Compile Include="Presenter\ToolSet.cs" />
+    <Compile Include="Presenter\ToolInfo.cs" />
+    <Compile Include="Presenter\ToolInfoPresenter.cs" />
+    <Compile Include="AppWindows\WaitWindow.xaml.cs">
       <DependentUpon>WaitWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
@@ -91,13 +101,17 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="WaitWindow.xaml">
+    <Page Include="AppWindows\SettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AppWindows\WaitWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Operation.cs" />
+    <Compile Include="Operation Info\Operation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -115,6 +129,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

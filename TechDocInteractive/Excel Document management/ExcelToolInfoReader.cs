@@ -10,7 +10,11 @@ namespace TechDocInteractive
 
         int toolLocationColumnNumber,
             toolQuantityColumnNumber,
-            toolNameColumnNumber;
+            toolNameColumnNumber,
+            storageCodeColumnNumber,
+            omegaCodeColumnNumber;
+        //string productionStorageCode = "1223";
+        //string centralStorageCode = "1212";
 
         public ExcelToolInfoReader(string excelFilePath)
         {
@@ -19,6 +23,8 @@ namespace TechDocInteractive
             this.toolLocationColumnNumber = SetColumnNumbers("Вид хранения");
             this.toolQuantityColumnNumber = SetColumnNumbers("Остаток");
             this.toolNameColumnNumber = SetColumnNumbers("Наименование");
+            this.storageCodeColumnNumber = SetColumnNumbers("Подразделение");
+            this.omegaCodeColumnNumber = SetColumnNumbers("Обозначение");
             GetToolInfoFromExcel();
         }
 
@@ -27,12 +33,13 @@ namespace TechDocInteractive
             string nextNameCell = " ";
             int columnNumber = 2;
             int headerRow = 2;
-            while (nextNameCell != null)
+            while (nextNameCell != "")
             {
                 if (excelRedactor.GetCellValue(headerRow, columnNumber).Equals(header))
                 {
                     return columnNumber;
                 }
+                nextNameCell = excelRedactor.GetCellValue(headerRow, columnNumber + 1);
                 columnNumber++;
             }
             throw new AppXmlAnalyzerExceptions("Столбец *" + header + "* не найден");
@@ -49,21 +56,27 @@ namespace TechDocInteractive
             while (nextNameCell != null)
             {
                 ExcelTool excelTool = new ExcelTool();
-                string insertLocation = excelRedactor.GetCellValue(row, toolLocationColumnNumber);
+                string toolLocation = excelRedactor.GetCellValue(row, toolLocationColumnNumber);
+                string storageCode = excelRedactor.GetCellValue(row, storageCodeColumnNumber);
 
-                if (insertLocation.Equals("Обычное хранение"))
+                if (toolLocation.Equals("Обычное хранение") && storageCode.Equals("1223"))
                 {
                     storageBalance = excelRedactor.GetCellValue(row, toolQuantityColumnNumber);
-                    excelTool.StorageQuantity = int.Parse(storageBalance);
+                    excelTool.ProductionStorageQuantity = int.Parse(storageBalance);
+                }
+                else if (toolLocation.Equals("Обычное хранение") && storageCode.Equals("1212"))
+                {
+                    storageBalance = excelRedactor.GetCellValue(row, toolQuantityColumnNumber);
+                    excelTool.CentralStorageQuantity = int.Parse(storageBalance);
                 }
                 else
                 {
                     productionBalance = excelRedactor.GetCellValue(row, toolQuantityColumnNumber);
                     excelTool.ProductionQuantity = int.Parse(productionBalance);
                 }
-                toolName = excelRedactor.GetCellValue(row, toolNameColumnNumber);
-                excelTool.ToolName = toolName;
-
+                excelTool.ToolName = excelRedactor.GetCellValue(row, toolNameColumnNumber);
+                excelTool.StorageCode = excelRedactor.GetCellValue(row, storageCodeColumnNumber);
+                excelTool.OmegaCode = excelRedactor.GetCellValue(row, omegaCodeColumnNumber);
                 excelToolList.Add(excelTool);
 
                 row++;

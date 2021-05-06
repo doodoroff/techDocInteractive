@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace TechDocInteractive
 {
-    class CsvToolData
+    class CsvTool
     {
         string name;
-        //string holderCode;
-        //string holderName;
         string insertPattern1, insertPattern2;
         string fromSpindelSideInterface, fromCutSideInterface;
 
@@ -20,20 +18,6 @@ namespace TechDocInteractive
 
             set { this.name = value; }
         }
-
-        /*public string HolderCode
-        {
-            get { return holderCode.Replace(';', ':'); }
-
-            set { this.holderCode = value; }
-        }*/
-
-        /*public string HolderName
-        {
-            get { return holderName; }
-
-            set { holderName = value; }
-        }*/
 
         public string InsertPattern1
         {

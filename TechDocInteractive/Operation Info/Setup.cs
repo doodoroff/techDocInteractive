@@ -35,10 +35,25 @@ namespace TechDocInteractive
 
                 foreach (var shift in shifts)
                 {
-                    setupMachiningTime += shift.MachiningTime;
+                    setupMachiningTime += shift.GetMachiningTime();
                 }
 
                 return setupMachiningTime;
+            }
+        }
+
+        public double SetupIdlingTime
+        {
+            get
+            {
+                double setupIdlingTime = 0;
+
+                foreach (var shift in shifts)
+                {
+                    setupIdlingTime += shift.GetIdlingTime();
+                }
+
+                return setupIdlingTime;
             }
         }
 
@@ -50,10 +65,25 @@ namespace TechDocInteractive
 
                 foreach (var shift in shifts)
                 {
-                    setupAuxiliaryTime += shift.AuxiliaryTime;
+                    setupAuxiliaryTime += shift.GetAuxiliaryTime();
                 }
 
                 return setupAuxiliaryTime;
+            }
+        }
+
+        public double SetupRapidTime
+        {
+            get
+            {
+                double setupRapidTime = 0;
+
+                foreach (var shift in shifts)
+                {
+                    setupRapidTime += shift.GetRapidTime();
+                }
+
+                return setupRapidTime;
             }
         }
     }

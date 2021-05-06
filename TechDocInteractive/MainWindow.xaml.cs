@@ -17,6 +17,7 @@ using System.IO;
 using System.Xml;
 using Microsoft.Win32;
 using System.Xml.XPath;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace TechDocInteractive
 {
@@ -29,6 +30,7 @@ namespace TechDocInteractive
         string toolBaseFilePath;
         string insertBaseFilePath;
         string colletBaseFilePath;
+        string millBaseFilePath;
         WaitWindow waitWindow;
 
         ToolInfoPresenter toolInfoPresenter;
@@ -37,10 +39,11 @@ namespace TechDocInteractive
         public MainWindow()
         {
             InitializeComponent();
-            xmlFilePath = AppSettings.GetCurrentFilePath("CurrentXmlFilePath");
+            xmlFilePath = @"C:\"; //AppSettings.GetCurrentFilePath("CurrentXmlFilePath");
             toolBaseFilePath = AppSettings.GetCurrentFilePath("CurrentFilePath");
             insertBaseFilePath = AppSettings.GetCurrentFilePath("CurrentInsertBasePath");
             colletBaseFilePath = AppSettings.GetCurrentFilePath("CurrentColletBasePath");
+            millBaseFilePath = AppSettings.GetCurrentFilePath("CurrentMillBasePath");
             
             if (toolBaseFilePath != null)
             {
@@ -51,12 +54,14 @@ namespace TechDocInteractive
             textbox_InsertFilePath.Text = insertBaseFilePath;
 
             textbox_ColletFilePath.Text = colletBaseFilePath;
+
+            textbox_MillFilePath.Text = millBaseFilePath;
         }
 
         private void Button_openFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = @"C:\";
+            openFileDialog.InitialDirectory = xmlFilePath;// @"C:\";
             openFileDialog.Filter = "файл проекта .xml (*.xml) | *.xml";
 
             if (openFileDialog.ShowDialog() == true)
@@ -70,6 +75,8 @@ namespace TechDocInteractive
                     //DisplayToolsInfo();
                     toolInfoGrid.Visibility = Visibility.Visible;
                     textBox_output.Visibility = Visibility.Visible;
+                    excelReportButton.IsEnabled = true;
+                    refreshButton.IsEnabled = true;
                     DisplayInfo();
                 }
                 catch (AppXmlAnalyzerExceptions ex)
@@ -111,7 +118,7 @@ namespace TechDocInteractive
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.InitialDirectory = toolBaseFilePath;
-            openFileDialog.Filter = "файл .xls (*.xls) | *.xls|файл .xlsx (*.xlsx) | *.xls";
+            openFileDialog.Filter = "файл .xlsx (*.xlsx) | *.xlsx";
 
             if (openFileDialog.ShowDialog() == true) 
             {
@@ -135,7 +142,7 @@ namespace TechDocInteractive
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.InitialDirectory = colletBaseFilePath;
-            openFileDialog.Filter = "файл .xls (*.xls) | *.xls|файл .xlsx (*.xlsx) | *.xls";
+            openFileDialog.Filter = "файл .xlsx (*.xlsx) | *.xlsx";
 
             if (openFileDialog.ShowDialog() == true)
             {
@@ -155,34 +162,33 @@ namespace TechDocInteractive
             }
         }
 
-        /*void DisplayToolsInfo()
+        private void OpenMillBaseButton_Click(object sender, RoutedEventArgs e)
         {
-            ToolInfoPresenter toolInfoPresenter = new ToolInfoPresenter(toolBaseFilePath, xmlFilePath);
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = colletBaseFilePath;
+            openFileDialog.Filter = "файл .xlsx (*.xlsx) | *.xlsx";
 
-            foreach (Tool operationTool in toolInfoPresenter.DistinctProjectTools)
+            if (openFileDialog.ShowDialog() == true)
             {
-                textBox_output.Text += "Инструмент: " + operationTool.Type + " " + operationTool.Name + "\n";
-                textBox_output.Text += "Димаметр: " + operationTool.Diametr + "\n";
-                textBox_output.Text += "Длинна инструмента: " + operationTool.Length + "\n";
-                textBox_output.Text += "Длинна режущей части: " + operationTool.WorkingLength + "\n";
-                textBox_output.Text += "Радиус на кромке: " + operationTool.EdgeRadius + "\n";
-                textBox_output.Text += "Угол кромки: " + operationTool.Angle + "\n";
-                textBox_output.Text += "Кол-во зубов: " + operationTool.NumberOfTeeth + "\n";
-                //textBox_output.Text += "Длинна оправки: " + operationTool.HolderLength + "\n";
-                //textBox_output.Text += "Общий вылет с оправкой: " + operationTool.FullOverhang + "\n";
-                textBox_output.Text += "Вылет инструмента: " + operationTool.WorkingOverhang + "\n";
-                //textBox_output.Text += "Стоикость: " + operationTool.Durability + "\n";
-                textBox_output.Text += "Имя оправки: " + operationTool.HolderName + "\n";
-                textBox_output.Text += "Пластина: " + operationTool.InsertPattern + "\n";
-                textBox_output.Text += "\n";
-            }
+                millBaseFilePath = openFileDialog.FileName;
+                textbox_MillFilePath.Text = millBaseFilePath;
 
-            ShowToolInfoInExcel(toolInfoPresenter);
-        }*/
+                AppSettings.SetCurrentFilePath("CurrentMillBasePath", millBaseFilePath);
+
+                openMillBaseButton.IsEnabled = true;
+            }
+            else
+            {
+                if (!openColletBaseButton.IsEnabled)
+                {
+                    MessageBox.Show("Файл не найден");
+                }
+            }
+        }
 
         void DisplayInfo()
         {
-            toolInfoPresenter = new ToolInfoPresenter(toolBaseFilePath, xmlFilePath, insertBaseFilePath, colletBaseFilePath);
+            toolInfoPresenter = new ToolInfoPresenter(toolBaseFilePath, xmlFilePath, insertBaseFilePath, colletBaseFilePath, millBaseFilePath);
 
             toolInfoPresenter.FlagInsertDataProcessingStart += ShowWaitWindow;
             toolInfoPresenter.FlagInsertDataProcessingStop += CloseWaitWindow;
@@ -192,8 +198,6 @@ namespace TechDocInteractive
             DisplayOperationInfo(toolInfoPresenter);
             DisplayToolsInfo(toolInfoPresenter);
             currentTools = toolInfoPresenter.ProjectToolsInfo;
-
-            excelReportButton.IsEnabled = true;
         }
 
         void ShowWaitWindow(object sender, EventArgs e)
@@ -227,20 +231,14 @@ namespace TechDocInteractive
             foreach (var setup in operationInfo.Setups)
             {
                 textBox_output.Text += "Установ: " + setup.SetupName + "\n";
-                textBox_output.Text += "Тв. (вспомогательное время) = " + setup.SetupAuxiliaryTime.ToString("0.00") +
-                       "; " +
-                       "Тобр. (время обработки) = " + setup.SetupMachiningTime.ToString("0.00") +
-                       "\n";
+                textBox_output.Text += "Тпрог. (время обработки) = " + setup.SetupMachiningTime.ToString("0.00");
                 textBox_output.Text += "\n";
                 int shiftNumber = 0;
                 foreach (var shift in setup.Shifts)
                 {
                     shiftNumber++;
                     textBox_output.Text += "Переход " + shiftNumber + ":" + "\n";
-                    textBox_output.Text += "Тв. (вспомогательное время) = " + shift.AuxiliaryTime.ToString("0.00") +
-                                          "; " +
-                                          "Тобр. (время обработки) = " + shift.MachiningTime.ToString("0.00") +
-                                          "\n";
+                    textBox_output.Text += "Тпрог. (время обработки) = " + shift.GetMachiningTime().ToString("0.00") + "\n";
                     textBox_output.Text += "Инструмент: " + shift.Tool.Type + " " + shift.Tool.Name + "\n";
                     textBox_output.Text += shift.ShiftDescription;
                     textBox_output.Text += "\n"; 
@@ -249,61 +247,105 @@ namespace TechDocInteractive
             }
         }
 
-        void ShowToolInfoInExcel()
+        void OutputToolInfoIntoExcel(ExcelRedactor excelRedactor)
         {
-            ExcelRedactor excelRedactor = new ExcelRedactor();
-            excelRedactor.Visible = true;
+            Operation operationInfo = toolInfoPresenter.OperationDescription;
+
+            excelRedactor.SetCellValue("Инструмент для обработки детали " +
+                                        operationInfo.DetailName +
+                                        " на станке " +
+                                        operationInfo.MachinetoolName,
+                                      1, 1);
+            excelRedactor.MergeCells(1, 1, 1, 2);
+            excelRedactor.SetBorderStyle(1, 1, 1, 2, ReportBorderStyle.Medium);
+
             int rowIndex = 2;
 
             foreach (var currentTool in currentTools)
             {
+                int blockStartRowIndex = rowIndex;
+
                 excelRedactor.SetCellValue("Инструмент:", rowIndex, 1);
+                excelRedactor.SetBorderStyle(rowIndex, 1, ReportBorderStyle.Thin);
                 excelRedactor.SetCellValue(currentTool.SourceToolName, rowIndex, 2);
+                excelRedactor.SetBorderStyle(rowIndex, 2, ReportBorderStyle.Thin);
                 rowIndex++;
                 if (currentTool.CurrentInsert1 != null)
                 {
                     excelRedactor.SetCellValue("Пластина:", rowIndex, 1);
+                    excelRedactor.SetBorderStyle(rowIndex, 1, ReportBorderStyle.Thin);
                     excelRedactor.SetCellValue(currentTool.CurrentInsert1, rowIndex, 2);
+                    excelRedactor.SetBorderStyle(rowIndex, 2, ReportBorderStyle.Thin);
                     rowIndex++;
                 }
                 if (currentTool.CurrentInsert2 != null) 
                 {
                     excelRedactor.SetCellValue("Пластина центр. :", rowIndex, 1);
+                    excelRedactor.SetBorderStyle(rowIndex, 1, ReportBorderStyle.Thin);
                     excelRedactor.SetCellValue(currentTool.CurrentInsert2, rowIndex, 2);
+                    excelRedactor.SetBorderStyle(rowIndex, 2, ReportBorderStyle.Thin);
                     rowIndex++;
                 }
                 excelRedactor.SetCellValue("Диаметр:", rowIndex, 1);
+                excelRedactor.SetBorderStyle(rowIndex, 1, ReportBorderStyle.Thin);
                 excelRedactor.SetCellValue(currentTool.SourceToolDiametr.ToString(), rowIndex, 2);
+                excelRedactor.SetBorderStyle(rowIndex, 2, ReportBorderStyle.Thin);
                 rowIndex++;
-                excelRedactor.SetCellValue("Длинна инструмента:", rowIndex, 1);
+                excelRedactor.SetCellValue("Длина инструмента:", rowIndex, 1);
+                excelRedactor.SetBorderStyle(rowIndex, 1, ReportBorderStyle.Thin);
                 excelRedactor.SetCellValue(currentTool.SourceToolLength.ToString(), rowIndex, 2);
+                excelRedactor.SetBorderStyle(rowIndex, 2, ReportBorderStyle.Thin);
                 rowIndex++;
-                excelRedactor.SetCellValue("Длинна режущей части:", rowIndex, 1);
+                excelRedactor.SetCellValue("Длина режущей части:", rowIndex, 1);
+                excelRedactor.SetBorderStyle(rowIndex, 1, ReportBorderStyle.Thin);
                 excelRedactor.SetCellValue(currentTool.SourceCuttingLength.ToString(), rowIndex, 2);
+                excelRedactor.SetBorderStyle(rowIndex, 2, ReportBorderStyle.Thin);
                 rowIndex++;
-                excelRedactor.SetCellValue("Радиус на кромке:", rowIndex, 1);
-                excelRedactor.SetCellValue(currentTool.SourceCutRadius.ToString(), rowIndex, 2);
-                rowIndex++;
-                excelRedactor.SetCellValue("Угол кромки:", rowIndex, 1);
-                excelRedactor.SetCellValue(currentTool.SourceCutAngle.ToString(), rowIndex, 2);
-                rowIndex++;
-                excelRedactor.SetCellValue("Кол-во зубов:", rowIndex, 1);
+                if (currentTool.SourceCutRadius != 0)
+                {
+                    excelRedactor.SetCellValue("Радиус на кромке:", rowIndex, 1);
+                    excelRedactor.SetBorderStyle(rowIndex, 1, ReportBorderStyle.Thin);
+                    excelRedactor.SetCellValue(currentTool.SourceCutRadius.ToString(), rowIndex, 2);
+                    excelRedactor.SetBorderStyle(rowIndex, 2, ReportBorderStyle.Thin);
+                    rowIndex++;
+                }
+                if (currentTool.SourceCutAngle != 0) 
+                {
+                    excelRedactor.SetCellValue("Угол кромки:", rowIndex, 1);
+                    excelRedactor.SetBorderStyle(rowIndex, 1, ReportBorderStyle.Thin);
+                    excelRedactor.SetCellValue(currentTool.SourceCutAngle.ToString(), rowIndex, 2);
+                    excelRedactor.SetBorderStyle(rowIndex, 2, ReportBorderStyle.Thin);
+                    rowIndex++;
+                }
+                excelRedactor.SetCellValue("Кол-во зубов/пластин:", rowIndex, 1);
+                excelRedactor.SetBorderStyle(rowIndex, 1, ReportBorderStyle.Thin);
                 excelRedactor.SetCellValue(currentTool.SourceNumberOfTeeth.ToString(), rowIndex, 2);
+                excelRedactor.SetBorderStyle(rowIndex, 2, ReportBorderStyle.Thin);
                 rowIndex++;
                 excelRedactor.SetCellValue("Вылет инструмента:", rowIndex, 1);
+                excelRedactor.SetBorderStyle(rowIndex, 1, ReportBorderStyle.Thin);
                 excelRedactor.SetCellValue(currentTool.SourceToolOverhang.ToString(), rowIndex, 2);
+                excelRedactor.SetBorderStyle(rowIndex, 2, ReportBorderStyle.Thin);
                 rowIndex++;
                 excelRedactor.SetCellValue("Оправка:", rowIndex, 1);
+                excelRedactor.SetBorderStyle(rowIndex, 1, ReportBorderStyle.Thin);
                 excelRedactor.SetCellValue(currentTool.SourceHolderName, rowIndex, 2);
+                excelRedactor.SetBorderStyle(rowIndex, 2, ReportBorderStyle.Thin);
                 if (currentTool.CurrentCollet != null)
                 {
                     rowIndex++;
                     excelRedactor.SetCellValue("Цанга:", rowIndex, 1);
+                    excelRedactor.SetBorderStyle(rowIndex, 1, ReportBorderStyle.Thin);
                     excelRedactor.SetCellValue(currentTool.CurrentCollet, rowIndex, 2);
+                    excelRedactor.SetBorderStyle(rowIndex, 2, ReportBorderStyle.Thin);
                 }
+
+                excelRedactor.SetBorderStyle(rowIndex + 1, 1, ReportBorderStyle.Thin);
+                excelRedactor.SetBorderStyle(rowIndex + 1, 2, ReportBorderStyle.Thin);
+                excelRedactor.SetBorderStyle(blockStartRowIndex, 1, rowIndex + 1, 2, ReportBorderStyle.Medium);
                 rowIndex += 2;
             }
-            excelRedactor.CellAutoFit();
+            excelRedactor.CellAutoFormat();
         }
 
         private void InsertComboBox1_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -351,20 +393,40 @@ namespace TechDocInteractive
 
         private void ExcelReportButton_Click(object sender, RoutedEventArgs e)
         {
-            ShowToolInfoInExcel();
+            ExcelRedactor excelRedactor = new ExcelRedactor();
+            OutputToolInfoIntoExcel(excelRedactor);
+
+            byte[] bin = excelRedactor.CloseAndPackAsByteArray();
+
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "файл .xlsx (*.xlsx) | *.xlsx";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                File.WriteAllBytes(saveFileDialog.FileName, bin);
+                openExcelReportFile(saveFileDialog.FileName, true);
+            }
         }
 
-
-        /*void DisplayInsertsInfo()
+        void openExcelReportFile(string filePath, bool visible)
         {
-            ToolInfoPresenter toolInfoPresenter = new ToolInfoPresenter(toolBaseFilePath, xmlFilePath, insertBaseFilePath);
-            int count = 0;
-            foreach (var insert in toolInfoPresenter.Inserts)
-            {
-                textBox_output.Text += count.ToString() + " " + insert.ToolName + " " + insert.ProductionQuantity + " " + insert.StorageQuantity + "\n";
-                count++;
-            }
-        }*/
+            Excel.Application excelApp = new Excel.Application();
+            Excel.Workbook workbook = excelApp.Workbooks.Open(Filename: filePath);
+            excelApp.Visible = visible;
+        }
 
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                toolInfoGrid.Visibility = Visibility.Visible;
+                textBox_output.Visibility = Visibility.Visible;
+                DisplayInfo();
+            }
+            catch (AppXmlAnalyzerExceptions ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
     }
 }
