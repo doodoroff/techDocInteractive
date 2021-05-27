@@ -25,10 +25,15 @@ namespace TechDocInteractive
         string colletBaseFilePath;
         string millBaseFilePath;
 
+        AppSettings appSettings;
+
         public SettingsWindow()
         {
             InitializeComponent();
-            toolBaseFilePath = AppSettings.GetCurrentFilePath("CurrentFilePath");
+
+            appSettings = new AppSettings();
+
+            toolBaseFilePath = AppSettings.GetCurrentFilePath("CurrentToolBaseFilePath");
             insertBaseFilePath = AppSettings.GetCurrentFilePath("CurrentInsertBasePath");
             colletBaseFilePath = AppSettings.GetCurrentFilePath("CurrentColletBasePath");
             millBaseFilePath = AppSettings.GetCurrentFilePath("CurrentMillBasePath");
@@ -44,84 +49,75 @@ namespace TechDocInteractive
 
         private void OpenToolBaseButton_Click(object sender, RoutedEventArgs e)
         {
+            toolBaseFilePath = GetFilePath("csv", toolBaseFilePath);
+            textBox_BaseFilePath.Text = toolBaseFilePath;
+            appSettings.SetToolBaseFilePath(toolBaseFilePath, "spCamToolBase");
+        }
+
+        string GetFilePath(string extension, string initialDirectory)
+        {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = toolBaseFilePath;
-            openFileDialog.Filter = "файл .csv (*.csv) | *.csv";
+            string path = System.IO.Path.GetDirectoryName(initialDirectory);
+            openFileDialog.InitialDirectory = path;
+            openFileDialog.Filter = "файл ." + extension + " (*." + extension + ") | *." + extension;
 
             if (openFileDialog.ShowDialog() == true)
             {
-                toolBaseFilePath = openFileDialog.FileName;
-                textBox_BaseFilePath.Text = toolBaseFilePath;
-
-                AppSettings.SetCurrentFilePath("CurrentFilePath", toolBaseFilePath);
+                if (openFileDialog.CheckFileExists)
+                {
+                    return openFileDialog.FileName;
+                }
+                else
+                {
+                    MessageBox.Show("Файл не найден");
+                    return initialDirectory;
+                }
             }
             else
             {
-                MessageBox.Show("Файл не найден");
+                return initialDirectory;
             }
         }
 
         private void OpenInsertBaseButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = toolBaseFilePath;
-            openFileDialog.Filter = "файл .xlsx (*.xlsx) | *.xlsx";
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                insertBaseFilePath = openFileDialog.FileName;
-                textbox_InsertFilePath.Text = insertBaseFilePath;
-
-                AppSettings.SetCurrentFilePath("CurrentInsertBasePath", insertBaseFilePath);
-            }
-            else
-            {
-                if (!openInsertBaseButton.IsEnabled)
-                {
-                    MessageBox.Show("Файл не найден");
-                }
-            }
+            insertBaseFilePath = GetFilePath("xlsx", insertBaseFilePath);
+            textbox_InsertFilePath.Text = insertBaseFilePath;
         }
 
         private void OpenColletBaseButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = colletBaseFilePath;
-            openFileDialog.Filter = "файл .xlsx (*.xlsx) | *.xlsx";
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                colletBaseFilePath = openFileDialog.FileName;
-                textbox_ColletFilePath.Text = colletBaseFilePath;
-
-                AppSettings.SetCurrentFilePath("CurrentColletBasePath", colletBaseFilePath);
-
-            }
-            else
-            {
-                MessageBox.Show("Файл не найден");
-            }
+            colletBaseFilePath = GetFilePath("xlsx", colletBaseFilePath);
+            textbox_ColletFilePath.Text = colletBaseFilePath;
         }
 
         private void OpenMillBaseButton_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = colletBaseFilePath;
-            openFileDialog.Filter = "файл .xlsx (*.xlsx) | *.xlsx";
+            millBaseFilePath = GetFilePath("xlsx", millBaseFilePath);
+            textbox_MillFilePath.Text = millBaseFilePath;
+        }
 
-            if (openFileDialog.ShowDialog() == true)
-            {
-                millBaseFilePath = openFileDialog.FileName;
-                textbox_MillFilePath.Text = millBaseFilePath;
+        private void OpenDrillBaseButton_Click(object sender, RoutedEventArgs e)
+        {
 
-                AppSettings.SetCurrentFilePath("CurrentMillBasePath", millBaseFilePath);
+        }
 
-                openMillBaseButton.IsEnabled = true;
-            }
-            else
-            {
-                 MessageBox.Show("Файл не найден");
-            }
+        private void OkButton_Click(object sender, RoutedEventArgs e)
+        {
+            AppSettings.SetCurrentFilePath("CurrentToolBaseFilePath", toolBaseFilePath);
+            AppSettings.SetCurrentFilePath("CurrentInsertBasePath", insertBaseFilePath);
+            AppSettings.SetCurrentFilePath("CurrentColletBasePath", colletBaseFilePath);
+            AppSettings.SetCurrentFilePath("CurrentMillBasePath", millBaseFilePath);
+            this.Close();
+        }
+
+        private void CanselButton_Click(object sender, RoutedEventArgs e)
+        {
+            toolBaseFilePath = AppSettings.GetCurrentFilePath("CurrentToolBaseFilePath");
+            insertBaseFilePath = AppSettings.GetCurrentFilePath("CurrentInsertBasePath");
+            colletBaseFilePath = AppSettings.GetCurrentFilePath("CurrentColletBasePath");
+            millBaseFilePath = AppSettings.GetCurrentFilePath("CurrentMillBasePath");
+            this.Close();
         }
     }
 }

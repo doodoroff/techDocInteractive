@@ -10,22 +10,32 @@
     <Grid>
         <TabControl>
             <TabItem Header="Пути к файлам">
-                <Grid>
+                <Grid Margin="0,0,0,5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition x:Name="buttonColumn" Width="120" MinWidth="105"/>
-                        <ColumnDefinition x:Name="textBoxColumn" Width="360" MinWidth="355"/>
+                        <ColumnDefinition x:Name="textBoxColumn" Width="*" MinWidth="355"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Vertical" Height="Auto" Grid.Column="0" HorizontalAlignment="Left">
+                    <Grid.RowDefinitions>
+                        <RowDefinition x:Name="pathRow" Height="*"/>
+                        <RowDefinition x:Name="buttonsRow" Height="35"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Vertical" Height="Auto" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left">
                         <Button x:Name="openToolBaseButton" Content="Инстр. SpCam" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="100" Click="OpenToolBaseButton_Click" Height="25"/>
                         <Button x:Name="openInsertBaseButton" Content="Пластины (.xlsx)" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Width="100" Height="25" Click="OpenInsertBaseButton_Click"/>
                         <Button x:Name="openColletBaseButton" Content="Цанги (.xlsx)" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Width="100" Height="25" Click="OpenColletBaseButton_Click"/>
                         <Button x:Name="openMillBaseButton" Content="Фрезы (.xlsx)" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Width="100" Height="25" Click="OpenMillBaseButton_Click"/>
+                        <Button x:Name="openDrillBaseButton" Content="Сверла (.xlsx)" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Width="100" Height="25" Click="OpenDrillBaseButton_Click"/>
                     </StackPanel>
-                    <StackPanel Orientation="Vertical" Height="Auto" Grid.Column="1" HorizontalAlignment="Left">
-                        <TextBox x:Name="textBox_BaseFilePath" HorizontalAlignment="Left" Height="24" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="347" IsEnabled="True"/>
-                        <TextBox x:Name="textbox_InsertFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="347" IsEnabled="True"/>
-                        <TextBox x:Name="textbox_ColletFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="347" IsEnabled="True"/>
-                        <TextBox x:Name="textbox_MillFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="347" IsEnabled="True"/>
+                    <StackPanel Orientation="Vertical" Height="Auto" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left">
+                        <TextBox x:Name="textBox_BaseFilePath" HorizontalAlignment="Left" Height="24" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="550" IsEnabled="True"/>
+                        <TextBox x:Name="textbox_InsertFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="550" IsEnabled="True"/>
+                        <TextBox x:Name="textbox_ColletFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="550" IsEnabled="True"/>
+                        <TextBox x:Name="textbox_MillFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="550" IsEnabled="True"/>
+                        <TextBox x:Name="textbox_DrillFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="550" IsEnabled="True"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,0,5,0">
+                        <Button x:Name="okButton" Content="OK" Width="103" Height="25" Margin="5,5,5,5" HorizontalAlignment="Right" Click="OkButton_Click"/>
+                        <Button x:Name="canselButton" Content="Отмена" Width="103" Height="25" Margin="5,5,5,5" HorizontalAlignment="Right" Click="CanselButton_Click"/>
                     </StackPanel>
                 </Grid>
             </TabItem>

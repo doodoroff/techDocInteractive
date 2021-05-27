@@ -135,7 +135,7 @@ namespace TechDocInteractive
             {
                 ToolInfo toolInfo = new ToolInfo();
                 toolInfo.ToolPosition = tool.PositionNumber;
-                toolInfo.SourceToolName = tool.Type + " " + tool.Name;
+                //toolInfo.SourceToolName = tool.Type + " " + tool.Name;
                 toolInfo.SourceToolDiametr = tool.Diametr;
                 toolInfo.SourceToolLength = tool.Length;
                 toolInfo.SourceCuttingLength = tool.WorkingLength;
@@ -147,8 +147,8 @@ namespace TechDocInteractive
                 toolInfo.SourceInsertNames1 = PerformMatchedToolListFromExcel(tool.InsertPattern1, inserts);
                 toolInfo.SourceInsertNames2 = PerformMatchedToolListFromExcel(tool.InsertPattern2, inserts);
                 toolInfo.SourceColletNames = PerformMatchedToolListFromExcel(tool.FromSpindelSideInterface, collets);
-                toolInfo.SourceToolStorageInfo = PerformToolStorageInfoFromExcel(tool.Type, tool.Name);
-                toolInfo.SourceToolName += " " + toolInfo.SourceToolStorageInfo;
+                //toolInfo.SourceToolStorageInfo = PerformToolStorageInfoFromExcel(tool.Type, tool.Name);
+                toolInfo.SourceToolName = PerformToolStorageInfoFromExcel(tool.Type, tool.Name);
 
                 toolInfoContainer.Add(toolInfo);
             }
@@ -173,8 +173,9 @@ namespace TechDocInteractive
 
             foreach (ExcelTool excelTool in excelToolsToSearchIn)
             {
-                listOfSearchResults.Add(excelTool.OmegaCode
-                                        + " "
+                listOfSearchResults.Add("("
+                                        + excelTool.OmegaCode
+                                        + ") "
                                         + excelTool.ToolName 
                                         + " [" 
                                         + excelTool.ProductionStorageQuantity 
@@ -275,13 +276,17 @@ namespace TechDocInteractive
             ToolType toolType = DefineToolType(toolDescription);
             List<ExcelTool> listOfExcelTools = AssignExcelToolBase(toolType);
 
-            if (listOfExcelTools == null)
+            if (toolName == null)
             {
                 return "";
             }
             if (toolDescription == null)
             {
-                return "";
+                return toolName;
+            }
+            if (listOfExcelTools == null)
+            {
+                return toolDescription + " " + toolName;
             }
 
             string searchPattern = FormatExcelToolName(toolName);
@@ -294,11 +299,17 @@ namespace TechDocInteractive
                 resultedExcelTool = resultedExcelToolList[0];
             }
 
-            string stringToReturn = "";
+            string stringToReturn = toolDescription + " " + toolName;
 
             if (resultedExcelTool != null)
             {
-                stringToReturn = "[ "
+                stringToReturn = "("
+                    + resultedExcelTool.OmegaCode
+                    + ") "
+                    + toolDescription
+                    + " "
+                    + toolName
+                    + " [ "
                     + resultedExcelTool.ProductionStorageQuantity.ToString()
                     + " на складе, "
                     + resultedExcelTool.CentralStorageQuantity.ToString()

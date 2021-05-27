@@ -32,15 +32,18 @@ namespace TechDocInteractive
         string colletBaseFilePath;
         string millBaseFilePath;
         WaitWindow waitWindow;
-
         ToolInfoPresenter toolInfoPresenter;
         List<ToolInfo> currentTools;
+        AppSettings appSettings;
 
         public MainWindow()
         {
             InitializeComponent();
-            xmlFilePath = @"C:\"; //AppSettings.GetCurrentFilePath("CurrentXmlFilePath");
-            toolBaseFilePath = AppSettings.GetCurrentFilePath("CurrentFilePath");
+
+            appSettings = new AppSettings();
+
+            xmlFilePath = AppSettings.GetCurrentFilePath("CurrentXmlFilePath");
+            toolBaseFilePath = AppSettings.GetCurrentFilePath("CurrentToolBaseFilePath");
             insertBaseFilePath = AppSettings.GetCurrentFilePath("CurrentInsertBasePath");
             colletBaseFilePath = AppSettings.GetCurrentFilePath("CurrentColletBasePath");
             millBaseFilePath = AppSettings.GetCurrentFilePath("CurrentMillBasePath");
@@ -49,19 +52,13 @@ namespace TechDocInteractive
             {
                 button_openFile.IsEnabled = true;
             }
-            textBox_BaseFilePath.Text = toolBaseFilePath;
-
-            textbox_InsertFilePath.Text = insertBaseFilePath;
-
-            textbox_ColletFilePath.Text = colletBaseFilePath;
-
-            textbox_MillFilePath.Text = millBaseFilePath;
         }
 
         private void Button_openFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = xmlFilePath;// @"C:\";
+            string path = System.IO.Path.GetDirectoryName(xmlFilePath);
+            openFileDialog.InitialDirectory = path;
             openFileDialog.Filter = "файл проекта .xml (*.xml) | *.xml";
 
             if (openFileDialog.ShowDialog() == true)
@@ -69,6 +66,7 @@ namespace TechDocInteractive
                 xmlFilePath = openFileDialog.FileName;
                 textBox_output.Clear();
                 AppSettings.SetCurrentFilePath("CurrentXmlFilePath", xmlFilePath);
+                appSettings.SetCurrentXmlFilePath(xmlFilePath);
                 try
                 {
                     //DisplayOperationInfo();
@@ -77,6 +75,7 @@ namespace TechDocInteractive
                     textBox_output.Visibility = Visibility.Visible;
                     excelReportButton.IsEnabled = true;
                     refreshButton.IsEnabled = true;
+                    spCamDoc_Tabs.Visibility = Visibility.Visible;
                     DisplayInfo();
                 }
                 catch (AppXmlAnalyzerExceptions ex)
@@ -86,103 +85,7 @@ namespace TechDocInteractive
             }
             else
             {
-                MessageBox.Show("Файл не найден");
-            }
-        }
-
-        private void OpenToolBaseButton_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = toolBaseFilePath;
-            openFileDialog.Filter = "файл .csv (*.csv) | *.csv";
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                toolBaseFilePath = openFileDialog.FileName;
-                textBox_BaseFilePath.Text = toolBaseFilePath;
-
-                AppSettings.SetCurrentFilePath("CurrentFilePath", toolBaseFilePath);
-
-                button_openFile.IsEnabled = true;
-            } 
-            else
-            {
-                if (!button_openFile.IsEnabled)
-                {
-                    MessageBox.Show("Файл не найден");
-                }
-            }
-        }
-
-        private void OpenInsertBaseButton_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = toolBaseFilePath;
-            openFileDialog.Filter = "файл .xlsx (*.xlsx) | *.xlsx";
-
-            if (openFileDialog.ShowDialog() == true) 
-            {
-                insertBaseFilePath = openFileDialog.FileName;
-                textbox_InsertFilePath.Text = insertBaseFilePath;
-
-                AppSettings.SetCurrentFilePath("CurrentInsertBasePath", insertBaseFilePath);
-
-                openInsertBaseButton.IsEnabled = true;
-            }
-            else
-            {
-                if (!openInsertBaseButton.IsEnabled)
-                {
-                    MessageBox.Show("Файл не найден");
-                }
-            }
-        }
-
-        private void OpenColletBaseButton_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = colletBaseFilePath;
-            openFileDialog.Filter = "файл .xlsx (*.xlsx) | *.xlsx";
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                colletBaseFilePath = openFileDialog.FileName;
-                textbox_ColletFilePath.Text = colletBaseFilePath;
-
-                AppSettings.SetCurrentFilePath("CurrentColletBasePath", colletBaseFilePath);
-
-                openColletBaseButton.IsEnabled = true;
-            }
-            else
-            {
-                if (!openColletBaseButton.IsEnabled)
-                {
-                    MessageBox.Show("Файл не найден");
-                }
-            }
-        }
-
-        private void OpenMillBaseButton_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = colletBaseFilePath;
-            openFileDialog.Filter = "файл .xlsx (*.xlsx) | *.xlsx";
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                millBaseFilePath = openFileDialog.FileName;
-                textbox_MillFilePath.Text = millBaseFilePath;
-
-                AppSettings.SetCurrentFilePath("CurrentMillBasePath", millBaseFilePath);
-
-                openMillBaseButton.IsEnabled = true;
-            }
-            else
-            {
-                if (!openColletBaseButton.IsEnabled)
-                {
-                    MessageBox.Show("Файл не найден");
-                }
+                //MessageBox.Show("Файл не найден");
             }
         }
 
@@ -427,6 +330,12 @@ namespace TechDocInteractive
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsWindow settingsWindow = new SettingsWindow();
+            settingsWindow.ShowDialog();
         }
     }
 }
