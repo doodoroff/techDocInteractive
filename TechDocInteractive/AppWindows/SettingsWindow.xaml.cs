@@ -21,9 +21,11 @@ namespace TechDocInteractive
     public partial class SettingsWindow : Window
     {
         string toolBaseFilePath;
-        string insertBaseFilePath;
-        string colletBaseFilePath;
-        string millBaseFilePath;
+
+        List<string> insertBaseFilePaths;
+        List<string> colletBaseFilePaths;
+        List<string> millBaseFilePaths;
+        List<string> drillBaseFilePaths;
 
         AppSettings appSettings;
 
@@ -32,32 +34,64 @@ namespace TechDocInteractive
             InitializeComponent();
 
             appSettings = new AppSettings();
-
-            toolBaseFilePath = AppSettings.GetCurrentFilePath("CurrentToolBaseFilePath");
-            insertBaseFilePath = AppSettings.GetCurrentFilePath("CurrentInsertBasePath");
-            colletBaseFilePath = AppSettings.GetCurrentFilePath("CurrentColletBasePath");
-            millBaseFilePath = AppSettings.GetCurrentFilePath("CurrentMillBasePath");
+            
+            toolBaseFilePath = appSettings.GetSingleFilePath("spCamToolBase");
+            insertBaseFilePaths = appSettings.GetToolBaseFilePathList("inserts");
+            colletBaseFilePaths = appSettings.GetToolBaseFilePathList("collets");
+            millBaseFilePaths = appSettings.GetToolBaseFilePathList("mills");
+            drillBaseFilePaths = appSettings.GetToolBaseFilePathList("drills");
 
             textBox_BaseFilePath.Text = toolBaseFilePath;
 
-            textbox_InsertFilePath.Text = insertBaseFilePath;
+            DisplayInfo();
+        }
 
-            textbox_ColletFilePath.Text = colletBaseFilePath;
+        void DisplayInfo()
+        {
+            UpdatePathDataGrid(insertPathsList, insertBaseFilePaths);
+            UpdatePathDataGrid(millPathsList, millBaseFilePaths);
+            UpdatePathDataGrid(colletPathsList, colletBaseFilePaths);
+            UpdatePathDataGrid(drillPathsList, drillBaseFilePaths);
+        }
 
-            textbox_MillFilePath.Text = millBaseFilePath;
+        void UpdatePathDataGrid(DataGrid dataGrid, List<string> pathList)
+        {
+            if (pathList == null) 
+            {
+                dataGrid.ItemsSource = null;
+            }
+            else
+            {
+                List<SettingsContainer> newPathsList = new List<SettingsContainer>();
+                foreach (var item in pathList)
+                {
+                    SettingsContainer container = new SettingsContainer();
+                    container.SourcePath = item;
+                    newPathsList.Add(container);
+                }
+                dataGrid.ItemsSource = newPathsList;
+            }
         }
 
         private void OpenToolBaseButton_Click(object sender, RoutedEventArgs e)
         {
             toolBaseFilePath = GetFilePath("csv", toolBaseFilePath);
             textBox_BaseFilePath.Text = toolBaseFilePath;
-            appSettings.SetToolBaseFilePath(toolBaseFilePath, "spCamToolBase");
         }
 
         string GetFilePath(string extension, string initialDirectory)
         {
+            string path = @"C:\";
+
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            string path = System.IO.Path.GetDirectoryName(initialDirectory);
+            try
+            {
+                path = System.IO.Path.GetDirectoryName(initialDirectory);
+            }
+            catch (Exception)
+            {
+                path = @"C:\";
+            }
             openFileDialog.InitialDirectory = path;
             openFileDialog.Filter = "файл ." + extension + " (*." + extension + ") | *." + extension;
 
@@ -81,43 +115,91 @@ namespace TechDocInteractive
 
         private void OpenInsertBaseButton_Click(object sender, RoutedEventArgs e)
         {
-            insertBaseFilePath = GetFilePath("xlsx", insertBaseFilePath);
-            textbox_InsertFilePath.Text = insertBaseFilePath;
+            AddPathToList(ref insertBaseFilePaths);
+            DisplayInfo();
+        }
+
+        void AddPathToList(ref List<string> pathList)
+        {
+            string initialDirectory;
+            if (pathList.Count == 0) 
+            {
+                initialDirectory = @"C:\";
+            }
+            else
+            {
+                initialDirectory = pathList.Last();
+            }
+
+            string filePath = GetFilePath("xlsx", initialDirectory);
+            pathList.Add(filePath);
         }
 
         private void OpenColletBaseButton_Click(object sender, RoutedEventArgs e)
         {
-            colletBaseFilePath = GetFilePath("xlsx", colletBaseFilePath);
-            textbox_ColletFilePath.Text = colletBaseFilePath;
+            AddPathToList(ref colletBaseFilePaths);
+            DisplayInfo();
         }
 
         private void OpenMillBaseButton_Click(object sender, RoutedEventArgs e)
         {
-            millBaseFilePath = GetFilePath("xlsx", millBaseFilePath);
-            textbox_MillFilePath.Text = millBaseFilePath;
+            AddPathToList(ref millBaseFilePaths);
+            DisplayInfo();
         }
 
         private void OpenDrillBaseButton_Click(object sender, RoutedEventArgs e)
         {
-
+            AddPathToList(ref drillBaseFilePaths);
+            DisplayInfo();
         }
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-            AppSettings.SetCurrentFilePath("CurrentToolBaseFilePath", toolBaseFilePath);
-            AppSettings.SetCurrentFilePath("CurrentInsertBasePath", insertBaseFilePath);
-            AppSettings.SetCurrentFilePath("CurrentColletBasePath", colletBaseFilePath);
-            AppSettings.SetCurrentFilePath("CurrentMillBasePath", millBaseFilePath);
+            InsertToSettingsFile();
             this.Close();
+        }
+
+        void InsertToSettingsFile()
+        {
+            appSettings.SetSingleFilePath(toolBaseFilePath, "spCamToolBase");
+            appSettings.RewriteToolBaseFilePathList(insertBaseFilePaths, "inserts");
+            appSettings.RewriteToolBaseFilePathList(millBaseFilePaths, "mills");
+            appSettings.RewriteToolBaseFilePathList(colletBaseFilePaths, "collets");
+            appSettings.RewriteToolBaseFilePathList(drillBaseFilePaths, "drills");
         }
 
         private void CanselButton_Click(object sender, RoutedEventArgs e)
         {
-            toolBaseFilePath = AppSettings.GetCurrentFilePath("CurrentToolBaseFilePath");
-            insertBaseFilePath = AppSettings.GetCurrentFilePath("CurrentInsertBasePath");
-            colletBaseFilePath = AppSettings.GetCurrentFilePath("CurrentColletBasePath");
-            millBaseFilePath = AppSettings.GetCurrentFilePath("CurrentMillBasePath");
             this.Close();
+        }
+
+        private void RemoveInsertBaseButton_Click(object sender, RoutedEventArgs e)
+        {
+            RemoveBaseNote(sender, insertBaseFilePaths);
+        }
+
+        void RemoveBaseNote(object sender, List<string> pathList)
+        {
+            Button button = sender as Button;
+            SettingsContainer pathContainer = button.DataContext as SettingsContainer;
+            string path = pathContainer.SourcePath;
+            pathList.Remove(path);
+            DisplayInfo();
+        }
+
+        private void RemoveMillBaseButton_Click(object sender, RoutedEventArgs e)
+        {
+            RemoveBaseNote(sender, millBaseFilePaths);
+        }
+
+        private void RemoveColletBaseButton_Click(object sender, RoutedEventArgs e)
+        {
+            RemoveBaseNote(sender, colletBaseFilePaths);
+        }
+
+        private void RemoveDrillBaseButton_Click(object sender, RoutedEventArgs e)
+        {
+            RemoveBaseNote(sender, drillBaseFilePaths);
         }
     }
 }

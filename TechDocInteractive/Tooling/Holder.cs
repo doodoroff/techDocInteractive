@@ -9,36 +9,40 @@ namespace TechDocInteractive
     class Holder
     {
         string name;
-        string holderCode;
-        string fromSpindelSideInterface;
-        string fromCutSideInterface;
+        string description;
+        string fromSpindelSideInterFase;
+        string fromCutSideInterFace;
+        double overhang;
 
         public string Name
         {
             get { return name.Trim(); }
 
-            set { this.name = value; }
+            set { name = value; }
         }
-
-        public string HolderCode
+        public string Description
         {
-            get { return holderCode.Trim(); }
+            get { return description; }
 
-            set { this.holderCode = value; }
+            set { description = value; }
         }
-
         public string FromSpindelSideInterface
         {
-            get { return fromSpindelSideInterface; }
+            get { return fromSpindelSideInterFase; }
 
-            set { this.fromSpindelSideInterface = value; }
+            set { fromSpindelSideInterFase = value; }
         }
-
         public string FromCutSideInterface
         {
-            get { return fromCutSideInterface; }
+            get { return fromCutSideInterFace; }
 
-            set { fromCutSideInterface = value; }
+            set { fromCutSideInterFace = value; }
+        }
+        public double Overhang
+        {
+            get { return overhang; }
+
+            set { overhang = value; }
         }
     }
 }

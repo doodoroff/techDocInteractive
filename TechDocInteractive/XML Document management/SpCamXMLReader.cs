@@ -10,7 +10,7 @@ namespace TechDocInteractive
 {
     class SpCamXMLReader
     {
-        List<ToolSet> projectTools;
+        List<XMLTool> projectTools;
         Operation operation;
         Setup setup;
         Shift shift;
@@ -20,7 +20,7 @@ namespace TechDocInteractive
 
         public SpCamXMLReader(string filePath)
         {
-            this.projectTools = new List<ToolSet>();
+            this.projectTools = new List<XMLTool>();
             this.operation = new Operation();
             xmlDocument = new XmlDocument();
             xmlDocument.Load(filePath);
@@ -56,7 +56,7 @@ namespace TechDocInteractive
 
             while (xPathOpXmlParamsIterator.MoveNext() && xPathTechnologyIterator.MoveNext())
             {
-                ToolSet currentOperationTool = new ToolSet();
+                XMLTool currentOperationTool = new XMLTool();
                 XPathNavigator currentOpXmlParamsNode = xPathOpXmlParamsIterator.Current;
                 XPathNavigator currentTechnologyNode = xPathTechnologyIterator.Current;
 
@@ -120,7 +120,7 @@ namespace TechDocInteractive
             return false;
         }
 
-        void GetTechnologyInfo(ToolSet currentOperationTool, XPathNavigator currentOpXmlParamsNode, XPathNavigator currentTechnologyNode, Setup currentSetup)
+        void GetTechnologyInfo(XMLTool currentOperationTool, XPathNavigator currentOpXmlParamsNode, XPathNavigator currentTechnologyNode, Setup currentSetup)
         {
             if (setup == null) 
             {
@@ -201,7 +201,7 @@ namespace TechDocInteractive
             return xPathXmlIterator;
         }
 
-        void GetToolInfoFromTechnologySection(ToolSet currentOperationTool, XPathNavigator currentTechnologyNode)
+        void GetToolInfoFromTechnologySection(XMLTool currentOperationTool, XPathNavigator currentTechnologyNode)
         {
             currentTechnologyNode.MoveToChild("OperationType", "");
             if (currentTechnologyNode.Value.Equals("TSTTechMillOpGroupFin"))
@@ -223,7 +223,7 @@ namespace TechDocInteractive
             currentTechnologyNode.MoveToParent();
         }
 
-        void GetToolInfoFromOpXmlParamsSection(ToolSet currentOperationTool, XPathNavigator currentOpXmlParamsNode)
+        void GetToolInfoFromOpXmlParamsSection(XMLTool currentOperationTool, XPathNavigator currentOpXmlParamsNode)
         {
             if (currentOperationTool.CustomTool)
             {
@@ -235,7 +235,7 @@ namespace TechDocInteractive
             }
         }
 
-        void GetHolderInfoFromOpXmlParamsSection(ToolSet currentOperationTool, XPathNavigator currentOpXmlParamsNode)
+        void GetHolderInfoFromOpXmlParamsSection(XMLTool currentOperationTool, XPathNavigator currentOpXmlParamsNode)
         {
             currentOpXmlParamsNode.MoveToChild("ToolSection", "");
             currentOpXmlParamsNode.MoveToChild("Tools", "");
@@ -252,7 +252,7 @@ namespace TechDocInteractive
             currentOpXmlParamsNode.MoveToParent();
         }
 
-        void ReadCustomToolOpXmlParamsCode(XPathNavigator currentOperationNode, ToolSet currentOperationTool)
+        void ReadCustomToolOpXmlParamsCode(XPathNavigator currentOperationNode, XMLTool currentOperationTool)
         {
             currentOperationNode.MoveToChild("ToolSection", "");
             currentOperationNode.MoveToChild("Tools", "");
@@ -302,7 +302,7 @@ namespace TechDocInteractive
             currentOperationNode.MoveToParent();
         }
 
-        void ReadToolOpXmlParamsCode(XPathNavigator currentOperationNode, ToolSet currentOperationTool)
+        void ReadToolOpXmlParamsCode(XPathNavigator currentOperationNode, XMLTool currentOperationTool)
         {
             currentOperationNode.MoveToChild("ToolSection", "");
             currentOperationNode.MoveToChild("Tools", "");
@@ -358,13 +358,15 @@ namespace TechDocInteractive
             currentOperationNode.MoveToParent();
         }
 
-        void ReadAndCalculateHolderAndTailLength(ToolSet currentOperationTool, XPathNavigator currentOpXmlParamsNode) // TO DO Refactoring, transfer to ToolSet class ?
+        void ReadAndCalculateHolderAndTailLength(XMLTool currentOperationTool, XPathNavigator currentOpXmlParamsNode)
         {
             XPathNodeIterator xPathHolderStepsIterator = currentOpXmlParamsNode.SelectChildren(currentOpXmlParamsNode.NodeType);
             double toolSetLength = 0;
             double holderNeckLength = 16;
-            double tailMarkerValue = 0.0999;
+            double holderMarkerValue = 0.999;
+            double tailMarkerValue = 0.666;
             double tailOverhang = 0;
+            double holderOverhang = 0;
             double sk50NeckDiameter = 97.55;
             double sk40NeckDiameter = 63.55;
 
@@ -373,14 +375,25 @@ namespace TechDocInteractive
                 XPathNavigator currentHolderStep = xPathHolderStepsIterator.Current;
                 currentHolderStep.MoveToChild("Diameter", "");
                 double holderStepDiameter = currentHolderStep.ValueAsDouble;
-                if (holderStepDiameter != sk50NeckDiameter && holderStepDiameter != sk40NeckDiameter)
+                if (holderStepDiameter.Equals(tailMarkerValue) || holderStepDiameter.Equals(holderMarkerValue))
                 {
                     currentHolderStep.MoveToPrevious();
-                    if (currentHolderStep.ValueAsDouble.Equals(tailMarkerValue))
+                    if (holderStepDiameter.Equals(tailMarkerValue))
+                    {
+                        tailOverhang += toolSetLength;
+                    }
+                    holderOverhang += toolSetLength;
+                    currentOperationTool.HolderOverhangValuesList.Add(toolSetLength);
+                    toolSetLength = 0;
+                }
+                else if (holderStepDiameter != sk50NeckDiameter && holderStepDiameter != sk40NeckDiameter)
+                {
+                    currentHolderStep.MoveToPrevious();
+                    /*if (currentHolderStep.ValueAsDouble.Equals(tailMarkerValue))
                     {
                         tailOverhang += toolSetLength;
                         toolSetLength = 0 - tailMarkerValue;
-                    }
+                    }*/
                     toolSetLength += currentHolderStep.ValueAsDouble;
                 }
                 else
@@ -390,11 +403,11 @@ namespace TechDocInteractive
                 currentHolderStep.MoveToParent();
             }
 
-            currentOperationTool.HolderLength = toolSetLength + holderNeckLength;
+            currentOperationTool.HolderLength = holderOverhang + holderNeckLength;
             currentOperationTool.TailOverhang = tailOverhang;
         }
 
-        public List<ToolSet> ProjectToolList
+        public List<XMLTool> ProjectToolList
         {
             get { return projectTools; }
         }

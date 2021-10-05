@@ -17,13 +17,13 @@ namespace TechDocInteractive
         readonly string toolSectionStartMarker = "ID=INTEGER";
         readonly string toolSectionStopMarker = "<END MILLING TOOLS>";
         List<CsvTool> csvToolDataList;
-        List<Holder> holderList;
+        List<AuxToolAssembly> holderList;
 
         public SpCamToolBaseReader(string filePath)
         {
             this.filePath = filePath;
             this.csvToolDataList = new List<CsvTool>();
-            this.holderList = new List<Holder>();
+            this.holderList = new List<AuxToolAssembly>();
             AddToolDataInfo();
             AddHolderDataInfo();
         }
@@ -33,7 +33,7 @@ namespace TechDocInteractive
             return csvToolDataList;
         }
 
-        public List<Holder> GetHolderList()
+        public List<AuxToolAssembly> GetHolderList()
         {
             return holderList;
         }
@@ -73,21 +73,55 @@ namespace TechDocInteractive
         void AddHolderDataInfo()
         {
             CsvRedactor csvRedactor = new CsvRedactor(filePath, holderSectionStartMarker, holderSectionStopMarker);
+            //Holder holder = new Holder();
 
             foreach (var toolInfoLine in csvRedactor)
             {
-                Holder holder = new Holder();
-                holder.HolderCode = toolInfoLine[2].Replace(',', '.');
-                holder.Name = toolInfoLine[1];
-                AddHolderInterfaces(toolInfoLine[6], holder);
-                holderList.Add(holder);
+                AuxToolAssembly auxToolAssembly = new AuxToolAssembly();
+                auxToolAssembly.HolderCode = toolInfoLine[2];
+                auxToolAssembly.Name = toolInfoLine[1];
+                auxToolAssembly.Description = toolInfoLine[6];
+                //AddHolderInterfaces(toolInfoLine[6], auxToolAssembly);
+                //auxToolAssembly.AssemblyHoldersList = GenerateHolderList(toolInfoLine);
+                holderList.Add(auxToolAssembly);
             }
             csvRedactor.Dispose();
         }
         
-        void AddHolderInterfaces(string interfaceStringFromBase, Holder holder)
+
+
+        /*List<Holder> GenerateHolderList(string[] toolInfoLine)
         {
-            string interfacesString = SeparateCommentPartFromInterfaces(interfaceStringFromBase);
+            List<Holder> holders = new List<Holder>();
+            string[] holderInterfaces = AddHolderInterfaces(toolInfoLine[6]);
+            string[] holderNames = AddHolderNames(toolInfoLine[1]);
+
+            if ((holderNames.Count() * 2) == holderInterfaces.Count()) 
+            {
+                for (int i = 0; i < holderNames.Count(); i++)
+                {
+                    Holder holder = new Holder();
+                    holder.Name = holderNames[i];
+                    holder.FromSpindelSideInterface = holderInterfaces[i * 2];
+                    holder.FromCutSideInterface = holderInterfaces[(i * 2) + 1];
+                    holders.Add(holder);
+                }
+            }
+
+            return holders;
+        }
+
+        string[] AddHolderNames(string nameStringFromBase)
+        {
+            string nameString = SeparateCommentPartFromName(nameStringFromBase);
+            char splitChar = '+';
+            string[] splitNames = nameString.Split(splitChar);
+            return splitNames;
+        }
+
+        void AddHolderInterfaces(string interfaceStringFromBase, AuxToolAssembly holder)
+        {
+            string interfacesString = SeparateCommentPartFromInterface(interfaceStringFromBase);
             char splitChar = '/';
             string[] splitInterfaces = interfacesString.Split(splitChar);
             if (splitInterfaces.Length > 1)
@@ -102,13 +136,36 @@ namespace TechDocInteractive
             }
         }
 
-        string SeparateCommentPartFromInterfaces(string interfaceStringFromBase)
+        string[] AddHolderInterfaces(string interfaceStringFromBase)
+        {
+            string interfacesString = SeparateCommentPartFromInterface(interfaceStringFromBase);
+            char splitChar = '/';
+            string[] splitInterfaces = interfacesString.Split(splitChar);
+            return splitInterfaces;
+        }
+
+        string SeparateCommentPartFromInterface(string interfaceStringFromBase)
         {
             string formatedInterfaceStringFromBase = interfaceStringFromBase.Trim();
             char splitChar = ' ';
             string[] splitString = formatedInterfaceStringFromBase.Split(splitChar);
             return splitString[0];
         }
+
+        string SeparateCommentPartFromName(string nameStringFromBase)
+        {
+            int splitStartPosition = nameStringFromBase.IndexOf('[');
+            string separatedNamePart;
+            if (splitStartPosition > 0) 
+            {
+                separatedNamePart = nameStringFromBase.Remove(splitStartPosition);
+            }
+            else
+            {
+                separatedNamePart = nameStringFromBase;
+            }
+            return separatedNamePart;
+        }*/
 
        
 

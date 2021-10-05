@@ -22,7 +22,7 @@ namespace TechDocInteractive
             toolPath = 0;
         }
 
-        public ToolSet Tool { get; set; }
+        public XMLTool Tool { get; set; }
         public string ShiftDescription { get; set; }
 
         public void AddMachiningTime(string machiningTime)

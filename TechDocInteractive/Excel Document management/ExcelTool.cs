@@ -8,7 +8,22 @@ namespace TechDocInteractive
 {
     class ExcelTool: IEquatable<ExcelTool>
     {
+        
         public string ToolName { get; set; }
+
+        //public string FormatedToolName
+        //{
+        //    get
+        //    {
+        //        string formatedExcelToolName = ToolName.Replace(" ", "");
+        //        if (formatedExcelToolName.Contains('('))
+        //        {
+        //            int comentStartPosition = formatedExcelToolName.IndexOf('(');
+        //            formatedExcelToolName = formatedExcelToolName.Remove(comentStartPosition);
+        //        }
+        //        return formatedExcelToolName;
+        //    }
+        //}
 
         public int ProductionStorageQuantity { get; set; }
 

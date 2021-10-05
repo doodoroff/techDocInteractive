@@ -66,30 +66,34 @@
     </ApplicationDefinition>
     <Compile Include="AppSettings\AppSettings.cs" />
     <Compile Include="AppSettings\AppXmlAnalyzerExceptions.cs" />
+    <Compile Include="AppSettings\SettingsContainer.cs" />
     <Compile Include="AppWindows\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Excel Document management\ExcelReport.cs" />
     <Compile Include="Excel Document management\ReportBorderStyle.cs" />
+    <Compile Include="Presenter\AuxToolInfo.cs" />
+    <Compile Include="Presenter\ProjectTool.cs" />
     <Compile Include="Presenter\ToolType.cs" />
-    <Compile Include="Tooling\Collet.cs" />
+    <Compile Include="Tooling\Hub.cs" />
     <Compile Include="SpCam toolBase mangement\CsvRedactor.cs" />
     <Compile Include="SpCam toolBase mangement\CsvTool.cs" />
     <Compile Include="Excel Document management\ExcelRedactor.cs" />
     <Compile Include="Excel Document management\ExcelTool.cs" />
     <Compile Include="Excel Document management\ExcelToolInfoReader.cs" />
     <Compile Include="Tooling\Holder.cs" />
+    <Compile Include="Tooling\AuxToolAssembly.cs" />
     <Compile Include="Tooling\Insert.cs" />
     <Compile Include="Operation Info\Setup.cs" />
     <Compile Include="Operation Info\Shift.cs" />
     <Compile Include="SpCam toolBase mangement\SpCamToolBaseReader.cs" />
     <Compile Include="XML Document management\SpCamXMLReader.cs" />
-    <Compile Include="Presenter\ToolSet.cs" />
+    <Compile Include="XML Document management\XMLTool.cs" />
     <Compile Include="Presenter\ToolInfo.cs" />
     <Compile Include="Presenter\ToolInfoPresenter.cs" />
     <Compile Include="AppWindows\WaitWindow.xaml.cs">
       <DependentUpon>WaitWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="XML Document management\XmlRedactor.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

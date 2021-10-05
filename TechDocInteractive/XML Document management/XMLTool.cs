@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace TechDocInteractive
 {
-    class ToolSet: IEquatable<ToolSet>
+    class XMLTool: IEquatable<XMLTool>
     {
         int positionNumber;
         string name;
@@ -22,15 +22,21 @@ namespace TechDocInteractive
         string holderCode;
         double fullOverhang;
         double holderLength;
-        double workingOverhang;
+        //double workingOverhang;
         double tailOverhang;
         double durability;
-        string holderName;
-        string catalogInsertPattern1, catalogInsertPattern2;
-        string fromSpindelSideInterface;
-        string fromCutSideInterface; // TO DO Refactoring, necessity ?
-        string holderSpindelSideInterface;
-        string holderCutSideInterface;
+        //List<Holder> holders;
+        //string catalogInsertPattern1, catalogInsertPattern2;
+        //string fromSpindelSideInterface;
+        //string fromCutSideInterface; // TO DO Refactoring, necessity ?
+        //string holderSpindelSideInterface;
+        //string holderCutSideInterface;
+        List<double> holderOverhangValuesList;
+
+        public XMLTool()
+        {
+            holderOverhangValuesList = new List<double>();
+        }
 
         public int PositionNumber
         {
@@ -48,76 +54,7 @@ namespace TechDocInteractive
 
         public string Type
         {
-            get {
-                    switch (type)
-                    {
-                        case "TrimAngle":
-                            {
-                                if (angle <= 45 && diameter > 32 && workingLength <= 8)
-                                {
-                                    return "Торцевая фреза";
-                                }
-                                else if (angle >= 70)
-                                {
-                                    return "Фреза для больших подач";
-                                }
-                                else
-                                {
-                                    return "Фреза с угловой реж. кромкой";
-                                }
-                            }
-                        case "EndMill":
-                            {
-                                return "Фреза";
-                            }
-                        case "Angle":
-                            {
-                                return "Фреза с угловой реж. кромкой";
-                            }
-                        case "Torus":
-                            {
-                                return "Фреза";
-                            }
-                        case "Spherical":
-                            {
-                                return "Сферическая фреза";
-                            }
-                        case "UndercutTool":
-                            {
-                                return "Дисковая фреза";
-                            }
-                        case "NegativeRad":
-                            {
-                                return "Фреза с обратным радиусом";
-                            }
-                        case "Reamer":
-                            {
-                                return "Развёртка";
-                            }
-                        case "BoringTool":
-                            {
-                                return "Расточка";
-                            }
-                        case "ThreadMill":
-                            {
-                                return "Резьбовая фреза";
-                            }
-                        case "Drill":
-                            {
-                                return "Сверло";
-                            }
-                        case "Tap":
-                            {
-                                return "Метчик";
-                            }
-
-                        default:
-                            {
-                                return "Неизвестный инструмент";
-                            }
-                    }
-
-            }
+            get { return type; }
 
             set { this.type = value; }
         }
@@ -173,21 +110,32 @@ namespace TechDocInteractive
 
         public string HolderCode
         {
-            get { return holderCode.Replace(';', ':'); }
+            get { return holderCode; }
 
             set { this.holderCode = value; }
         }
 
-        public string HolderName
+        /*public List<Holder> HolderNames
         {
-            get { return holderName; }
+            get {
+                    /*if (holders != null)
+                    {
+                        foreach (Holder holder in holders)
+                        {
+                            holder.Name.Trim();
+                        }
+                    }
+                    return holders;
+                }
 
-            set { holderName = value; }
-        }
+            set { holders = value; }
+        }*/
 
         public double TailOverhang
         {
             set { this.tailOverhang = value; }
+
+            get { return tailOverhang; }
         }
 
         public double FullOverhang
@@ -204,7 +152,7 @@ namespace TechDocInteractive
             set { this.holderLength = value; }
         }
 
-        public double WorkingOverhang
+        /*public double WorkingOverhang
         {
             get {
                     if (type== "UndercutTool")
@@ -218,7 +166,7 @@ namespace TechDocInteractive
                     
                     return workingOverhang;
                 }
-        }
+        }*/
 
         public double Durability
         {
@@ -227,7 +175,7 @@ namespace TechDocInteractive
             set { this.durability = value; }
         }
 
-        public string InsertPattern1
+        /*public string InsertPattern1
         {
             get {
                 string formatedInsertPattern = FormatInsertPattern(catalogInsertPattern1);
@@ -236,8 +184,8 @@ namespace TechDocInteractive
                 }
 
             set { catalogInsertPattern1 = value; }
-        }
-        public string InsertPattern2
+        }*/
+        /*public string InsertPattern2
         {
             get
             {
@@ -247,9 +195,9 @@ namespace TechDocInteractive
             }
 
             set { catalogInsertPattern2 = value; }
-        }
+        }*/
 
-        string FormatInsertPattern(string catalogInsertPattern)
+        /*string FormatInsertPattern(string catalogInsertPattern)
         {
             if (catalogInsertPattern == "")
             {
@@ -287,18 +235,18 @@ namespace TechDocInteractive
             }
             else
             {
-                pattern = "(" + catalogInsertPatternsParts[0] + @"\S*\d" + formatedCatalogEdgeRadius + "[SPERMT-]" + ")";
+                pattern = "(" + catalogInsertPatternsParts[0] + @"\S*\d" + formatedCatalogEdgeRadius + "[SPERMHT-]*" + ")";
             }
 
             return pattern;
-        }
+        }*/
 
-        string FormatCatalogInsertPattern(string catalogInsertPattern)
+        /*string FormatCatalogInsertPattern(string catalogInsertPattern)
         {
             return catalogInsertPattern.Replace(" ", "");
-        }
+        }*/
 
-        string FormatCatalogEdgeRadius(string catalogEdgeRadius)
+        /*string FormatCatalogEdgeRadius(string catalogEdgeRadius)
         {
             string formatedEdgeRadius = catalogEdgeRadius.Replace(",", "");
 
@@ -308,9 +256,9 @@ namespace TechDocInteractive
             }
 
             return formatedEdgeRadius;
-        }
+        }*/
 
-        public string FromSpindelSideInterface
+        /*public string FromSpindelSideInterface
         {
             get
             {
@@ -320,9 +268,9 @@ namespace TechDocInteractive
             }
 
             set { fromSpindelSideInterface = value; }
-        }
+        }*/
 
-        string FormatFromSpindelSideInterface(string fromSpindelSideInterface)
+        /*string FormatFromSpindelSideInterface(string fromSpindelSideInterface)
         {
             if (fromSpindelSideInterface != "")
             {
@@ -352,32 +300,39 @@ namespace TechDocInteractive
                 }
             }
             return "";
-        }
+        }*/
 
-        string ExtractDiameterValueFromInterface(string holderInterface)
+        /*string ExtractDiameterValueFromInterface(string holderInterface)
         {
             if (holderInterface != "" && holderCutSideInterface != "") 
             {
                 return holderInterface.Remove(0, holderInterface.Length - 2);
             }
             return "0";
-        }
+        }*/
 
-        public string HolderSpindelSideInterface
+        /*public string HolderSpindelSideInterface
         {
             get { return holderSpindelSideInterface; }
 
             set { holderSpindelSideInterface = value; }
-        }
+        }*/
 
-        public string HolderCutSideInterface
+        /*public string HolderCutSideInterface
         {
             get { return holderCutSideInterface; }
 
             set { holderCutSideInterface = value; }
+        }*/
+
+        public List<double> HolderOverhangValuesList
+        {
+            get { return holderOverhangValuesList; }
+
+            set { holderOverhangValuesList = value; }
         }
 
-        public bool Equals(ToolSet other)
+        public bool Equals(XMLTool other)
         {
             return positionNumber.Equals(other.positionNumber);
         }
@@ -389,7 +344,7 @@ namespace TechDocInteractive
                 return false;
             }
 
-            ToolSet ToolObj = obj as ToolSet;
+            XMLTool ToolObj = obj as XMLTool;
             if (ToolObj == null)
             {
                 return false;

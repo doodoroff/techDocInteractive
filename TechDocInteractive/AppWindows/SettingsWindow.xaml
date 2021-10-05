@@ -6,34 +6,217 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TechDocInteractive"
         mc:Ignorable="d"
-        Title="Настройки" Height="450" Width="800">
+        Title="Настройки" Height="500" Width="800">
     <Grid>
         <TabControl>
             <TabItem Header="Пути к файлам">
-                <Grid Margin="0,0,0,5">
+                <Grid Margin="0,0,0,5" ScrollViewer.VerticalScrollBarVisibility="Auto">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition x:Name="buttonColumn" Width="120" MinWidth="105"/>
-                        <ColumnDefinition x:Name="textBoxColumn" Width="*" MinWidth="355"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition x:Name="pathRow" Height="*"/>
-                        <RowDefinition x:Name="buttonsRow" Height="35"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto" MaxHeight="300"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <StackPanel Orientation="Vertical" Height="Auto" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left">
-                        <Button x:Name="openToolBaseButton" Content="Инстр. SpCam" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="100" Click="OpenToolBaseButton_Click" Height="25"/>
-                        <Button x:Name="openInsertBaseButton" Content="Пластины (.xlsx)" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Width="100" Height="25" Click="OpenInsertBaseButton_Click"/>
-                        <Button x:Name="openColletBaseButton" Content="Цанги (.xlsx)" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Width="100" Height="25" Click="OpenColletBaseButton_Click"/>
-                        <Button x:Name="openMillBaseButton" Content="Фрезы (.xlsx)" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Width="100" Height="25" Click="OpenMillBaseButton_Click"/>
-                        <Button x:Name="openDrillBaseButton" Content="Сверла (.xlsx)" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Width="100" Height="25" Click="OpenDrillBaseButton_Click"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Vertical" Height="Auto" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left">
-                        <TextBox x:Name="textBox_BaseFilePath" HorizontalAlignment="Left" Height="24" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="550" IsEnabled="True"/>
-                        <TextBox x:Name="textbox_InsertFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="550" IsEnabled="True"/>
-                        <TextBox x:Name="textbox_ColletFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="550" IsEnabled="True"/>
-                        <TextBox x:Name="textbox_MillFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="550" IsEnabled="True"/>
-                        <TextBox x:Name="textbox_DrillFilePath" HorizontalAlignment="Left" Height="25" Margin="0,5,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="550" IsEnabled="True"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,0,5,0">
+                    <GroupBox Header="Список инструмента SprutCAM (.csv)" Grid.Column="0" Grid.Row="0" Margin="5,5,5,5">
+                        <Grid x:Name="spCamToolBase">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition x:Name="buttonColumn" Width="120" MinWidth="105"/>
+                                <ColumnDefinition x:Name="textBoxColumn" Width="*" MinWidth="355"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition x:Name="pathRow" Height="*"/>
+                                <RowDefinition x:Name="buttonsRow" Height="*"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Vertical" Height="Auto" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left">
+                                <Button x:Name="openToolBaseButton" Content="Инстр. SpCam" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="100" Click="OpenToolBaseButton_Click" Height="30"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Height="Auto" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left">
+                                <Border BorderBrush="Black" BorderThickness="1" Margin="0,10,0,0">
+                                    <TextBlock x:Name="textBox_BaseFilePath" HorizontalAlignment="Left" Height="24" TextWrapping="Wrap" VerticalAlignment="Top" Width="595" IsEnabled="True" Margin="2,2,2,2"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </GroupBox>
+                    <ScrollViewer Grid.Column="0" Grid.Row="1" MaxHeight="300" Margin="5,5,5,5" VerticalScrollBarVisibility="Auto" CanContentScroll="False">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition x:Name="insertsRow" Height="Auto" MaxHeight="300"/>
+                                <RowDefinition x:Name="millsRow" Height="Auto" MaxHeight="300"/>
+                                <RowDefinition x:Name="drillsRow" Height="Auto" MaxHeight="300"/>
+                                <RowDefinition x:Name="colletsRow" Height="Auto" MaxHeight="300"/>
+                            </Grid.RowDefinitions>
+                            <GroupBox Header="Базы режущих пластин (.xlsx)" Margin="5,5,5,5" Grid.Column="0" Grid.Row="0" MaxHeight="260">
+                            <Grid x:Name="insertsGrid">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <ScrollViewer Grid.Column="0" Grid.Row="0" VerticalScrollBarVisibility="Auto" CanContentScroll="False">
+                                    <DataGrid x:Name="insertPathsList" AutoGenerateColumns="False" CanUserAddRows="False" Margin="5,5,5,5" Height="Auto" ColumnWidth="*" VerticalAlignment="Top" Focusable="False">
+                                        <DataGrid.Columns>
+                                            <DataGridTemplateColumn>
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition x:Name="insertBaseTypeColumn" Width="100"/>
+                                                                <ColumnDefinition x:Name="insertBasePathColumn" Width="*"/>
+                                                                <ColumnDefinition x:Name="insertBasePathRemoveColumn" Width="50"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="30" Focusable="False"/>
+                                                            </Grid.RowDefinitions>
+                                                            <Border BorderBrush="Black" Grid.Column="0" Grid.Row="0" BorderThickness="1">
+                                                                <TextBlock x:Name="baseType" Text="База пластин" Height="25" Margin="2,2,2,2" HorizontalAlignment="Center"/>
+                                                            </Border>
+                                                            <Border BorderBrush="Black" BorderThickness="1" Grid.Column="1" Grid.Row="0">
+                                                                <TextBlock x:Name="basePath" Text="{Binding Path=SourcePath}" Margin="2,2,2,2"/>
+                                                            </Border>
+                                                            <Button x:Name="removeInsertBaseButton" Content="Удалить" Width="50" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="0" Click="RemoveInsertBaseButton_Click"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </ScrollViewer>
+                                <Button x:Name="addInsertBasePathButton" Grid.Column="0" Grid.Row="1" Content="Добавить базу" Width="103" Height="25" Margin="5,5,5,5" HorizontalAlignment="Right" Click="OpenInsertBaseButton_Click"/>
+                            </Grid>
+                        </GroupBox>
+                            <GroupBox Header="Базы фрез и корпусов фрез (.xlsx)" Margin="5,5,5,5" Grid.Column="0" Grid.Row="1" MaxHeight="260">
+                                <Grid x:Name="millsGrid">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <ScrollViewer Grid.Column="0" Grid.Row="0" VerticalScrollBarVisibility="Auto" CanContentScroll="False">
+                                        <DataGrid x:Name="millPathsList" AutoGenerateColumns="False" CanUserAddRows="False" Margin="5,5,5,5" Height="Auto" ColumnWidth="*" VerticalAlignment="Top" Focusable="False">
+                                            <DataGrid.Columns>
+                                                <DataGridTemplateColumn>
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition x:Name="millBaseTypeColumn" Width="100"/>
+                                                                    <ColumnDefinition x:Name="millBasePathColumn" Width="*"/>
+                                                                    <ColumnDefinition x:Name="millBasePathRemoveColumn" Width="50"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="30" Focusable="False"/>
+                                                                </Grid.RowDefinitions>
+                                                                <Border BorderBrush="Black" Grid.Column="0" Grid.Row="0" BorderThickness="1">
+                                                                    <TextBlock x:Name="baseType" Text="База фрез" Height="25" Margin="2,2,2,2" HorizontalAlignment="Center"/>
+                                                                </Border>
+                                                                <Border BorderBrush="Black" BorderThickness="1" Grid.Column="1" Grid.Row="0">
+                                                                    <TextBlock x:Name="basePath" Text="{Binding Path=SourcePath}" Margin="2,2,2,2"/>
+                                                                </Border>
+                                                                <Button x:Name="removeMillBaseButton" Content="Удалить" Width="50" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="0" Click="RemoveMillBaseButton_Click"/>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
+                                    <Button x:Name="addMillBasePathButton" Grid.Column="0" Grid.Row="1" Content="Добавить базу" Width="103" Height="25" Margin="5,5,5,5" HorizontalAlignment="Right" Click="OpenMillBaseButton_Click"/>
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Header="Базы свёрел и корпусов свёрел (.xlsx)" Margin="5,5,5,5" Grid.Column="0" Grid.Row="2" MaxHeight="260">
+                                <Grid x:Name="drillsGrid">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <ScrollViewer Grid.Column="0" Grid.Row="0" VerticalScrollBarVisibility="Auto" CanContentScroll="False">
+                                        <DataGrid x:Name="drillPathsList" AutoGenerateColumns="False" CanUserAddRows="False" Margin="5,5,5,5" Height="Auto" ColumnWidth="*" VerticalAlignment="Top" Focusable="False">
+                                            <DataGrid.Columns>
+                                                <DataGridTemplateColumn>
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition x:Name="millBaseTypeColumn" Width="100"/>
+                                                                    <ColumnDefinition x:Name="millBasePathColumn" Width="*"/>
+                                                                    <ColumnDefinition x:Name="millBasePathRemoveColumn" Width="50"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="30" Focusable="False"/>
+                                                                </Grid.RowDefinitions>
+                                                                <Border BorderBrush="Black" Grid.Column="0" Grid.Row="0" BorderThickness="1">
+                                                                    <TextBlock x:Name="baseType" Text="База свёрел" Height="25" Margin="2,2,2,2" HorizontalAlignment="Center"/>
+                                                                </Border>
+                                                                <Border BorderBrush="Black" BorderThickness="1" Grid.Column="1" Grid.Row="0">
+                                                                    <TextBlock x:Name="basePath" Text="{Binding Path=SourcePath}" Margin="2,2,2,2"/>
+                                                                </Border>
+                                                                <Button x:Name="removeDrillBaseButton" Content="Удалить" Width="50" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="0" Click="RemoveDrillBaseButton_Click"/>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
+                                    <Button x:Name="addDrillBasePathButton" Grid.Column="0" Grid.Row="1" Content="Добавить базу" Width="103" Height="25" Margin="5,5,5,5" HorizontalAlignment="Right" Click="OpenDrillBaseButton_Click"/>
+                                </Grid>
+                            </GroupBox>
+                            <GroupBox Header="Базы цанг (.xlsx)" Margin="5,5,5,5" Grid.Column="0" Grid.Row="3" MaxHeight="260">
+                                <Grid x:Name="colletsGrid">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <ScrollViewer Grid.Column="0" Grid.Row="0" VerticalScrollBarVisibility="Auto" CanContentScroll="False">
+                                        <DataGrid x:Name="colletPathsList" AutoGenerateColumns="False" CanUserAddRows="False" Margin="5,5,5,5" Height="Auto" ColumnWidth="*" VerticalAlignment="Top" Focusable="False">
+                                            <DataGrid.Columns>
+                                                <DataGridTemplateColumn>
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition x:Name="colletBaseTypeColumn" Width="100"/>
+                                                                    <ColumnDefinition x:Name="colletBasePathColumn" Width="*"/>
+                                                                    <ColumnDefinition x:Name="colletBasePathRemoveColumn" Width="50"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="30" Focusable="False"/>
+                                                                </Grid.RowDefinitions>
+                                                                <Border BorderBrush="Black" Grid.Column="0" Grid.Row="0" BorderThickness="1">
+                                                                    <TextBlock x:Name="baseType" Text="База цанг" Height="25" Margin="2,2,2,2" HorizontalAlignment="Center"/>
+                                                                </Border>
+                                                                <Border BorderBrush="Black" BorderThickness="1" Grid.Column="1" Grid.Row="0">
+                                                                    <TextBlock x:Name="basePath" Text="{Binding Path=SourcePath}" Margin="2,2,2,2"/>
+                                                                </Border>
+                                                                <Button x:Name="removeColletBaseButton" Content="Удалить" Width="50" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="0" Click="RemoveColletBaseButton_Click"/>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
+                                    <Button x:Name="addColletBasePathButton" Grid.Column="0" Grid.Row="1" Content="Добавить базу" Width="103" Height="25" Margin="5,5,5,5" HorizontalAlignment="Right" Click="OpenColletBaseButton_Click"/>    
+                                </Grid>
+                            </GroupBox>
+                        </Grid>
+                    </ScrollViewer>
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,5,0">
                         <Button x:Name="okButton" Content="OK" Width="103" Height="25" Margin="5,5,5,5" HorizontalAlignment="Right" Click="OkButton_Click"/>
                         <Button x:Name="canselButton" Content="Отмена" Width="103" Height="25" Margin="5,5,5,5" HorizontalAlignment="Right" Click="CanselButton_Click"/>
                     </StackPanel>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,10 +23,9 @@ namespace TechDocInteractive
         public string SourceToolStorageInfo { get; set; }
         public List<string> SourceInsertNames1 { get; set; }
         public List<string> SourceInsertNames2 { get; set; }
-        public List<string> SourceColletNames { get; set; }
+        public List<AuxToolInfo> SourceAuxToolsSpecification { get; set; }
 
         public string CurrentInsert1 { get; set; }
         public string CurrentInsert2 { get; set; }
-        public string CurrentCollet { get; set; }
     }
 }

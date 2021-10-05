@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,30 +15,42 @@ namespace TechDocInteractive
 
         readonly string xmlFilePath;
         readonly string toolBaseFilePath;
-        readonly string insertBaseFilePath;
-        readonly string colletBaseFilePath;
-        readonly string millBaseFilePath;
+        readonly List<string> insertBaseFilePaths;
+        readonly List<string> colletBaseFilePaths;
+        readonly List<string> millBaseFilePaths;
+        readonly List<string> drillBaseFilePaths;
 
+        List<ProjectTool> projectTools;
         SpCamXMLReader spCamXMLReader;
         SpCamToolBaseReader spCamToolBaseReader;
         //ExcelToolInfoReader excelToolInfoReader;
         //CsvRedactor CsvRedactor;
-        List<ToolSet> projectTools;
+        List<XMLTool> xmlTools;
         Operation operationDescription;
         List<ToolInfo> toolInfoContainer;
+        //List<AuxToolInfo> auxToolInfoContainer;
+        //List<string> auxToolsList;
         List<ExcelTool> inserts;
         List<ExcelTool> collets;
         List<ExcelTool> mills;
+        List<ExcelTool> drills;
         //IEnumerable<Tool> distinctProjectTools;
 
-        public ToolInfoPresenter(string toolBaseFilePath, string xmlFilePath, string insertBaseFilePath = null, string colletBaseFilePath = null, string millBaseFilePath = null)
+        public ToolInfoPresenter(string toolBaseFilePath, 
+                                 string xmlFilePath, 
+                                 List<string> insertBaseFilePaths = null, 
+                                 List<string> colletBaseFilePaths = null, 
+                                 List<string> millBaseFilePaths = null,
+                                 List<string> drillBaseFilePaths = null)
         {
             this.xmlFilePath = xmlFilePath;
             this.toolBaseFilePath = toolBaseFilePath;
-            this.insertBaseFilePath = insertBaseFilePath;
-            this.colletBaseFilePath = colletBaseFilePath;
-            this.millBaseFilePath = millBaseFilePath;
+            this.insertBaseFilePaths = insertBaseFilePaths;
+            this.colletBaseFilePaths = colletBaseFilePaths;
+            this.millBaseFilePaths = millBaseFilePaths;
+            this.drillBaseFilePaths = drillBaseFilePaths;
 
+            projectTools = new List<ProjectTool>();
             spCamXMLReader = new SpCamXMLReader(xmlFilePath);
             spCamToolBaseReader = new SpCamToolBaseReader(toolBaseFilePath);
         }
@@ -48,33 +61,78 @@ namespace TechDocInteractive
 
             //InitializeDataProcessing();
 
-            projectTools = spCamXMLReader.ProjectToolList;
+            xmlTools = spCamXMLReader.ProjectToolList;
             operationDescription = spCamXMLReader.OperationDescription;
 
             toolInfoContainer = new List<ToolInfo>();
+            //auxToolInfoContainer = new List<AuxToolInfo>();
+            //auxToolsList = new List<string>();
 
-            AddHolderNamesToTools();
-            AddCsvDataToTools();
+            //AddHolderNamesToTools();
 
             try
             {
-                inserts = new ExcelToolInfoReader(insertBaseFilePath).ExcelToolList;
+                /*inserts = new ExcelToolInfoReader(insertBaseFilePath).ExcelToolList;
                 collets = new ExcelToolInfoReader(colletBaseFilePath).ExcelToolList;
-                mills = new ExcelToolInfoReader(millBaseFilePath).ExcelToolList;
+                mills = new ExcelToolInfoReader(millBaseFilePath).ExcelToolList;*/
+                inserts = ReadToolBaseFiles(insertBaseFilePaths);
+                collets = ReadToolBaseFiles(colletBaseFilePaths);
+                mills = ReadToolBaseFiles(millBaseFilePaths);
+                drills = ReadToolBaseFiles(drillBaseFilePaths);
             }
             catch (Exception)
             {
                 inserts = null;
                 collets = null;
                 mills = null;
-                //throw new AppXmlAnalyzerExceptions("Файл с базой пластин не найден");
+                drills = null;
             }
             finally
             {
+                InitializeProjectTools();
+                AddCsvHolderDataToAuxTools();
+                AddCsvToolDataToProjectTools();
                 PerformToolInfo();
             }
 
             OnFlagInsertDataProcessingEvent(FlagInsertDataProcessingStop);
+        }
+
+        void InitializeProjectTools()
+        {
+            foreach (XMLTool toolFromXML in xmlTools)
+            {
+                ProjectTool projectTool = new ProjectTool();
+                projectTool.Angle = toolFromXML.Angle;
+                projectTool.Diametr = toolFromXML.Diametr;
+                projectTool.Durability = toolFromXML.Durability;
+                projectTool.EdgeRadius = toolFromXML.EdgeRadius;
+                projectTool.HolderCode = toolFromXML.HolderCode;
+                projectTool.ToolLength = toolFromXML.Length;
+                projectTool.Name = toolFromXML.Name;
+                projectTool.NumberOfTeeth = toolFromXML.NumberOfTeeth;
+                projectTool.PositionNumber = toolFromXML.PositionNumber;
+                projectTool.Type = toolFromXML.Type;
+                projectTool.WorkingLength = toolFromXML.WorkingLength;
+                projectTool.FullOverhang = toolFromXML.FullOverhang;
+                projectTool.HolderSetLength = toolFromXML.HolderLength;
+                projectTool.TailOverhang = toolFromXML.TailOverhang;
+                projectTool.HolderOverhangValuesList = toolFromXML.HolderOverhangValuesList;
+
+                projectTools.Add(projectTool);
+            }
+        }
+
+        List<ExcelTool> ReadToolBaseFiles(List<string> toolBasePaths)
+        {
+            List<ExcelTool> excelToolsBase = new List<ExcelTool>();
+
+            foreach (var toolBasePath in toolBasePaths)
+            {
+                excelToolsBase.AddRange(new ExcelToolInfoReader(toolBasePath).ExcelToolList);
+            }
+
+            return excelToolsBase;
         }
 
         void OnFlagInsertDataProcessingEvent(EventHandler eventHandler)
@@ -82,46 +140,63 @@ namespace TechDocInteractive
             eventHandler?.Invoke(this, EventArgs.Empty);
         }
 
-        void AddHolderNamesToTools() // TO DO: refactoring
+        void AddCsvHolderDataToAuxTools()
         {
-            var holderList = spCamToolBaseReader.GetHolderList();
+            List<AuxToolAssembly> holderList = spCamToolBaseReader.GetHolderList();
 
-            foreach (var currentTool in projectTools)
+            foreach (ProjectTool projectTool in projectTools)
             {
-                Holder holder = holderList.Find(h => h.HolderCode.Equals(currentTool.HolderCode));
-                if (holder != null)
+                AuxToolAssembly auxToolAssembly = holderList.Find(h => h.HolderCode.Equals(projectTool.HolderCode));
+
+                //AuxToolInfo auxToolInfo = new AuxToolInfo();
+                if (auxToolAssembly != null) // Nesceserity ?
                 {
-                    currentTool.HolderName = holder.Name;
-                    currentTool.HolderSpindelSideInterface = holder.FromSpindelSideInterface;
-                    currentTool.HolderCutSideInterface = holder.FromCutSideInterface;
+                    projectTool.AuxToolAssembly = auxToolAssembly;
+                    //auxToolInfoCombiner.AuxToolAssemblyCode = auxToolAssembly.HolderCode;
+                    //auxToolInfoCombiner.Holders = auxToolAssembly.AssemblyHoldersList;
+                    //List<Holder> assemblyHoldersList = auxToolAssembly.AssemblyHoldersList;
+                    //if (assemblyHoldersList.Count != 0)
+                    //{
+                    //    foreach (Holder holder in assemblyHoldersList)
+                    //    {
+                    //        auxToolInfo.HolderName = holder.Name + " " + holder.Description;
+                    //        auxToolInfo.Overhang = holder.Overhang;
+                    //        auxToolInfo.FixingDevices = PerformMatchedToolListFromExcel(holder.FromSpindelSideInterface, collets);
+                    //    }
+                    //}
+                    /*currentTool.HolderNames = auxToolAssembly.AssemblyHoldersList;
+                    currentTool.HolderSpindelSideInterface = auxToolAssembly.FromSpindelSideInterface;
+                    currentTool.HolderCutSideInterface = auxToolAssembly.FromCutSideInterface;*/
                 }
-                else
-                {
-                    currentTool.HolderName = "Неизвестная оправка";
-                    currentTool.HolderSpindelSideInterface = "";
-                    currentTool.HolderCutSideInterface = "";
-                }
+                //else
+                //{
+
+                //    currentTool.HolderNames = new List<Holder>();
+                //    currentTool.HolderSpindelSideInterface = "";
+                //    currentTool.HolderCutSideInterface = "";*/
+                //}
+                //auxToolInfoContainer.Add(auxToolInfo);
             }
         }
 
-        void AddCsvDataToTools()
+        void AddCsvToolDataToProjectTools()
         {
-            var csvToolDataList = spCamToolBaseReader.GetCsvToolDataList();
+            List<CsvTool> csvToolDataList = spCamToolBaseReader.GetCsvToolDataList();
 
-            foreach (var currentTool in projectTools)
+            foreach (ProjectTool currentTool in projectTools)
             {
                 CsvTool csvToolData = csvToolDataList.Find(d => d.Name.Equals(currentTool.Name));
                 if (csvToolData != null) 
                 {
                     currentTool.InsertPattern1 = csvToolData.InsertPattern1;
                     currentTool.InsertPattern2 = csvToolData.InsertPattern2;
-                    currentTool.FromSpindelSideInterface = csvToolData.FromSpindelSideInterface;
+                    currentTool.CutToolFromSpindelSideInterface = csvToolData.FromSpindelSideInterface;
                 }
                 else
                 {
                     currentTool.InsertPattern1 = "";
                     currentTool.InsertPattern2 = "";
-                    currentTool.FromSpindelSideInterface = "";
+                    currentTool.CutToolFromSpindelSideInterface = "";
                 }
 
             }
@@ -129,30 +204,40 @@ namespace TechDocInteractive
 
         void PerformToolInfo()
         {
-            IEnumerable<ToolSet> distinctProjectTools = projectTools.Distinct();
+            IEnumerable<ProjectTool> distinctProjectTools = projectTools.Distinct();
 
-            foreach (ToolSet tool in distinctProjectTools)
+            foreach (ProjectTool projectTool in distinctProjectTools)
             {
                 ToolInfo toolInfo = new ToolInfo();
-                toolInfo.ToolPosition = tool.PositionNumber;
-                //toolInfo.SourceToolName = tool.Type + " " + tool.Name;
-                toolInfo.SourceToolDiametr = tool.Diametr;
-                toolInfo.SourceToolLength = tool.Length;
-                toolInfo.SourceCuttingLength = tool.WorkingLength;
-                toolInfo.SourceCutRadius = tool.EdgeRadius;
-                toolInfo.SourceCutAngle = tool.Angle;
-                toolInfo.SourceNumberOfTeeth = tool.NumberOfTeeth;
-                toolInfo.SourceToolOverhang = tool.WorkingOverhang;
-                toolInfo.SourceHolderName = tool.HolderName;
-                toolInfo.SourceInsertNames1 = PerformMatchedToolListFromExcel(tool.InsertPattern1, inserts);
-                toolInfo.SourceInsertNames2 = PerformMatchedToolListFromExcel(tool.InsertPattern2, inserts);
-                toolInfo.SourceColletNames = PerformMatchedToolListFromExcel(tool.FromSpindelSideInterface, collets);
-                //toolInfo.SourceToolStorageInfo = PerformToolStorageInfoFromExcel(tool.Type, tool.Name);
-                toolInfo.SourceToolName = PerformToolStorageInfoFromExcel(tool.Type, tool.Name);
+
+                toolInfo.ToolPosition = projectTool.PositionNumber;
+                toolInfo.SourceToolDiametr = projectTool.Diametr;
+                toolInfo.SourceToolLength = projectTool.ToolLength;
+                toolInfo.SourceCuttingLength = projectTool.WorkingLength;
+                toolInfo.SourceCutRadius = projectTool.EdgeRadius;
+                toolInfo.SourceCutAngle = projectTool.Angle;
+                toolInfo.SourceNumberOfTeeth = projectTool.NumberOfTeeth;
+                toolInfo.SourceToolOverhang = projectTool.ToolOverhang;
+                toolInfo.SourceInsertNames1 = PerformMatchedToolListFromExcel(projectTool.InsertPattern1, inserts);
+                toolInfo.SourceInsertNames2 = PerformMatchedToolListFromExcel(projectTool.InsertPattern2, inserts);
+                toolInfo.SourceToolName = PerformToolStorageInfoFromExcel(projectTool.Type, projectTool.Name);
+                toolInfo.SourceAuxToolsSpecification = PerformAuxToolInfo(projectTool.AuxToolSpecification);
 
                 toolInfoContainer.Add(toolInfo);
             }
-        }
+        } 
+
+        //List<string> PerformAuxToolInfo()
+        //{
+        //    List<string> auxToolInfo = new List<string>();
+
+        //    foreach (ProjectTool projectTool in projectTools)
+        //    {
+        //        List<Holder> holders = projectTool.AuxToolAssembly.AssemblyHoldersList;
+        //    }
+
+        //    return auxToolInfo;
+        //}
 
         List<string> PerformMatchedToolListFromExcel(string searchPattern, List<ExcelTool> excelTools)
         {
@@ -361,7 +446,7 @@ namespace TechDocInteractive
                     }
                 case ToolType.drill:
                     {
-                        return null;
+                        return drills;
                     }
                 case ToolType.tap:
                     {
@@ -382,6 +467,39 @@ namespace TechDocInteractive
             }
         }
 
+        List<AuxToolInfo> PerformAuxToolInfo(ArrayList auxToolInfoSpecification)
+        {
+            ArrayList localAuxToolSpecification = auxToolInfoSpecification;
+            if (localAuxToolSpecification == null)
+            {
+                return null;
+            }
+            else
+            {
+                List<AuxToolInfo> auxToolInfoList = new List<AuxToolInfo>();
+
+                for (int i = 0; i < localAuxToolSpecification.Count; i++)
+                {
+                    if (localAuxToolSpecification[i] is Holder)
+                    {
+                        AuxToolInfo auxToolInfo = new AuxToolInfo();
+                        Holder holder = localAuxToolSpecification[i] as Holder;
+                        auxToolInfo.AuxToolName = holder.Name + " " + holder.Description;
+                        auxToolInfo.AuxToolOverhang = holder.Overhang;
+                        if (localAuxToolSpecification[i + 1] is Hub)
+                        {
+                            Hub hub = localAuxToolSpecification[i + 1] as Hub;
+                            List<string> matchedHubs = PerformMatchedToolListFromExcel(hub.NamePattern, collets);
+                            auxToolInfo.HubList = matchedHubs;
+                        }
+                        auxToolInfoList.Add(auxToolInfo);
+                    }
+                }
+
+                return auxToolInfoList;
+            }
+        }
+
         /*public List<Tool> ProjectTools
         {
             get { return projectTools; }
@@ -392,9 +510,9 @@ namespace TechDocInteractive
             get { return toolInfoContainer; }
         }
 
-        public IEnumerable<ToolSet> DistinctProjectTools
+        public IEnumerable<XMLTool> DistinctProjectTools
         {
-            get { return projectTools.Distinct<ToolSet>(); }
+            get { return xmlTools.Distinct<XMLTool>(); }
         }
 
         public Operation OperationDescription

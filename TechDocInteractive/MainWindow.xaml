@@ -7,8 +7,9 @@
         mc:Ignorable="d"
         Title="ТехДокИнтерактив v.5.2.1 alpha test" Height="768" SizeToContent="Width">
     <Window.Resources>
-
+        
     </Window.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" MinWidth="160"/>
@@ -47,18 +48,18 @@
             <TabItem x:Name="spCamManagmentTab" Header="SprutCAM Док.">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                     <Button x:Name="button_openFile" Grid.Column="0" Content="Открыть файл (.xml)" HorizontalAlignment="Left" Margin="5,5,5,5" VerticalAlignment="Top" Width="100" Click="Button_openFile_Click" IsEnabled="False" Height="24" FontSize="10"/>
-                    <Button x:Name="excelReportButton" Grid.Column="0" Content="Отчёт (.xlsx)" HorizontalAlignment="Left" Margin="5,2,5,5" VerticalAlignment="Top" Width="100" Height="25" Click="ExcelReportButton_Click" IsEnabled="False"/>
-                    <Button x:Name="refreshButton" Grid.Column="0" Content="Обновить" HorizontalAlignment="Left" Margin="5,2,5,5" VerticalAlignment="Top" Width="100" Height="25" IsEnabled="False" Click="RefreshButton_Click"/>
+                    <Button x:Name="excelReportButton" Grid.Column="0" Content="Отчёт (.xlsx)" HorizontalAlignment="Left" Margin="5,5,5,5" VerticalAlignment="Top" Width="100" Height="25" Click="ExcelReportButton_Click" IsEnabled="False"/>
+                    <Button x:Name="refreshButton" Grid.Column="0" Content="Обновить" HorizontalAlignment="Left" Margin="5,5,5,5" VerticalAlignment="Top" Width="100" Height="25" IsEnabled="False" Click="RefreshButton_Click"/>
                 </StackPanel>
             </TabItem>
         </TabControl>
         <TabControl x:Name="spCamDoc_Tabs" Grid.Column="1" TabStripPlacement="Top" Margin="5,25,5,20" Width="Auto" HorizontalAlignment="Left" Visibility="Hidden">
             <TabItem x:Name="spCamToolList_Tab" Header="Список инструмента">
-                <Grid Margin="5,5,5,5">
+                <Grid x:Name="commonGrid" Margin="5,5,5,5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid x:Name="toolInfoGrid" AutoGenerateColumns="False" Grid.Column="0" HorizontalAlignment="Left" Margin="5,5,5,5" VerticalAlignment="Top" ScrollViewer.CanContentScroll="False" Visibility="Hidden">
+                    <DataGrid x:Name="toolInfoGrid" AutoGenerateColumns="False" Grid.Column="0" HorizontalAlignment="Left" Margin="5,5,5,5" VerticalAlignment="Top" ScrollViewer.CanContentScroll="False" Visibility="Hidden" IsReadOnly="True">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
@@ -69,8 +70,8 @@
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="*"/>
-                                                <RowDefinition Name="insert1LabelRow" Height="Auto"/>
-                                                <RowDefinition Name="insert2LabelRow" Height="Auto"/>
+                                                <RowDefinition Name="insert1LabelRow" Height="*"/>
+                                                <RowDefinition Name="insert2LabelRow" Height="*"/>
                                                 <RowDefinition Height="*"/>
                                                 <RowDefinition Height="*"/>
                                                 <RowDefinition Height="*"/>
@@ -79,7 +80,7 @@
                                                 <RowDefinition Height="*"/>
                                                 <RowDefinition Height="*"/>
                                                 <RowDefinition Height="*"/>
-                                                <RowDefinition Name="colletLabelRow" Height="*"/>
+                                                <RowDefinition Name="auxToolRow"/>
                                             </Grid.RowDefinitions>
                                             <Label Content="Инструмент:" VerticalAlignment="Center"/>
                                             <Label Grid.Row="1" Content="Пластина:" VerticalAlignment="Center"/>
@@ -91,8 +92,41 @@
                                             <Label Grid.Row="7" Content="Угол реж. кромки:" VerticalAlignment="Center"/>
                                             <Label Grid.Row="8" Content="Кол-во зубов/пластин:" VerticalAlignment="Center"/>
                                             <Label Grid.Row="9" Content="Вылет из оправки:" VerticalAlignment="Center"/>
-                                            <Label Grid.Row="10" Content="Оправка:" VerticalAlignment="Center"/>
-                                            <Label Grid.Row="11" Content="Цанга:" VerticalAlignment="Center"/>
+                                            <Label Grid.Row="10" Content="" VerticalAlignment="Center"/>
+                                            <Grid Name="gridAux" Grid.Row="11" VerticalAlignment="Bottom" Margin="0,0,0,0" IsHitTestVisible="False">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <DataGrid Name="auxToolGrid" Grid.Column="0" ItemsSource="{Binding Path=SourceAuxToolsSpecification}" AutoGenerateColumns="False" ScrollViewer.CanContentScroll="False" CanUserAddRows="False" VerticalAlignment="Bottom" CanUserResizeColumns="False">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTemplateColumn>
+                                                            <DataGridTemplateColumn.CellTemplate>
+                                                                <DataTemplate>
+                                                                    <Grid>
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <Grid.RowDefinitions>
+                                                                            <RowDefinition/>
+                                                                            <RowDefinition/>
+                                                                            <RowDefinition/>
+                                                                        </Grid.RowDefinitions>
+                                                                        <TextBox Text="Наименование держателя:" Height="24" VerticalAlignment="Top"/>
+                                                                        <TextBox Grid.Row="1" Text="Вылет держателя:" Height="24" VerticalAlignment="Top"/>
+                                                                        <TextBox Grid.Row="2" Name="hubBoxPlug" Text="Зажимная вставка:" Height="24" VerticalAlignment="Top"/>
+                                                                        <!--<ComboBox Name="hubBoxPlug" Grid.Row="1" Text="" Visibility="Hidden"/>-->
+                                                                    </Grid>
+                                                                    <DataTemplate.Triggers>
+                                                                        <DataTrigger Binding="{Binding Path=HubList}" Value="{x:Null}">
+                                                                            <Setter TargetName="hubBoxPlug" Property="Height" Value="0"/>
+                                                                        </DataTrigger>
+                                                                    </DataTemplate.Triggers>
+                                                                </DataTemplate>
+                                                            </DataGridTemplateColumn.CellTemplate>
+                                                        </DataGridTemplateColumn>
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </Grid>
                                         </Grid>
                                         <DataTemplate.Triggers>
                                             <DataTrigger Binding="{Binding Path=SourceInsertNames1}" Value="{x:Null}">
@@ -100,9 +134,6 @@
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Path=SourceInsertNames2}" Value="{x:Null}">
                                                 <Setter TargetName="insert2LabelRow" Property="Height" Value="0"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding Path=SourceColletNames}" Value="{x:Null}">
-                                                <Setter TargetName="colletLabelRow" Property="Height" Value="0"/>
                                             </DataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
@@ -112,7 +143,7 @@
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Grid>
+                                        <Grid Focusable="False">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
@@ -128,7 +159,7 @@
                                                 <RowDefinition Height="*"/>
                                                 <RowDefinition Height="*"/>
                                                 <RowDefinition Height="*"/>
-                                                <RowDefinition Name="colletRow2" Height="*"/>
+                                                <RowDefinition Name="auxToolRow" Height="*"/>
                                             </Grid.RowDefinitions>
                                             <TextBox Text="{Binding Path=SourceToolName}" VerticalAlignment="Center"/>
                                             <ComboBox Name="insertComboBox1" Grid.Row="1" ItemsSource="{Binding Path=SourceInsertNames1}" SelectedIndex="0" SelectionChanged="InsertComboBox1_SelectionChanged" VerticalAlignment="Center"/>
@@ -140,8 +171,48 @@
                                             <TextBox Grid.Row="7" Text="{Binding Path=SourceCutAngle}" VerticalAlignment="Center"/>
                                             <TextBox Grid.Row="8" Text="{Binding Path=SourceNumberOfTeeth}" VerticalAlignment="Center"/>
                                             <TextBox Grid.Row="9" Text="{Binding Path=SourceToolOverhang}" VerticalAlignment="Center"/>
-                                            <TextBox Grid.Row="10" Text="{Binding Path=SourceHolderName}" VerticalAlignment="Center"/>
-                                            <ComboBox Name="colletComboBox" Grid.Row="11" ItemsSource="{Binding Path=SourceColletNames}" SelectedIndex="0" SelectionChanged="ColletComboBox_SelectionChanged" VerticalAlignment="Center"/>
+                                            <Label Grid.Row="10" Content="Вспомогательный инструмент:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            <Grid Grid.Row="11" Margin="0,0,0,0" ScrollViewer.CanContentScroll="False" ScrollViewer.VerticalScrollBarVisibility="Disabled" Height="{Binding ElementName=gridAux, Path=ActualHeight}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <DataGrid Name="auxToolDataGrid" Grid.Column="0" ItemsSource="{Binding Path=SourceAuxToolsSpecification}" AutoGenerateColumns="False" ScrollViewer.CanContentScroll="False" CanUserAddRows="False" Margin="0,0,0,1" VerticalAlignment="Bottom" ColumnWidth="*">
+                                                    <!--<DataGrid.Template>
+                                                        <ControlTemplate>
+                                                            <StackPanel>
+                                                                <ItemsPresenter/>
+                                                            </StackPanel>
+                                                        </ControlTemplate>
+                                                    </DataGrid.Template>-->
+                                                    <DataGrid.Columns>
+                                                        <DataGridTemplateColumn>
+                                                            <DataGridTemplateColumn.CellTemplate>
+                                                                <DataTemplate>
+                                                                    <Grid>
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <Grid.RowDefinitions>
+                                                                            <RowDefinition/>
+                                                                            <RowDefinition/>
+                                                                            <RowDefinition/>
+                                                                        </Grid.RowDefinitions>
+                                                                        <TextBox Text="{Binding Path=AuxToolName}" VerticalAlignment="Center" Height="24"/>
+                                                                        <TextBox x:Name="auxOverhandTextBox" Grid.Row="1" Text="{Binding Path=AuxToolOverhang}" VerticalAlignment="Center" Height="24"/>
+                                                                        <ComboBox Grid.Row="2" Name="hubBox" ItemsSource="{Binding Path=HubList}" SelectedIndex="0" SelectionChanged="HubBox_SelectionChanged" VerticalAlignment="Center" Height="24" IsHitTestVisible="True"/>
+                                                                    </Grid>
+                                                                    <DataTemplate.Triggers>
+                                                                        <DataTrigger Binding="{Binding Path=HubList}" Value="{x:Null}">
+                                                                            <Setter TargetName="hubBox" Property="Height" Value="0"/>
+                                                                        </DataTrigger>
+                                                                    </DataTemplate.Triggers>
+                                                                </DataTemplate>
+                                                            </DataGridTemplateColumn.CellTemplate>
+                                                        </DataGridTemplateColumn>
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </Grid>
+                                            
                                         </Grid>
                                         <DataTemplate.Triggers>
                                             <DataTrigger Binding="{Binding Path=SourceInsertNames1}" Value="{x:Null}">
@@ -149,9 +220,6 @@
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Path=SourceInsertNames2}" Value="{x:Null}">
                                                 <Setter TargetName="insert2ComboBoxRow" Property="Height" Value="0"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding Path=SourceColletNames}" Value="{x:Null}">
-                                                <Setter TargetName="colletRow2" Property="Height" Value="0"/>
                                             </DataTrigger>
                                         </DataTemplate.Triggers>
                                     </DataTemplate>
