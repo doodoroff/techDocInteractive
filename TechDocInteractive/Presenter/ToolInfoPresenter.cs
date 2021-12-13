@@ -148,34 +148,15 @@ namespace TechDocInteractive
             {
                 AuxToolAssembly auxToolAssembly = holderList.Find(h => h.HolderCode.Equals(projectTool.HolderCode));
 
-                //AuxToolInfo auxToolInfo = new AuxToolInfo();
-                if (auxToolAssembly != null) // Nesceserity ?
+                if (auxToolAssembly != null)
                 {
                     projectTool.AuxToolAssembly = auxToolAssembly;
-                    //auxToolInfoCombiner.AuxToolAssemblyCode = auxToolAssembly.HolderCode;
-                    //auxToolInfoCombiner.Holders = auxToolAssembly.AssemblyHoldersList;
-                    //List<Holder> assemblyHoldersList = auxToolAssembly.AssemblyHoldersList;
-                    //if (assemblyHoldersList.Count != 0)
-                    //{
-                    //    foreach (Holder holder in assemblyHoldersList)
-                    //    {
-                    //        auxToolInfo.HolderName = holder.Name + " " + holder.Description;
-                    //        auxToolInfo.Overhang = holder.Overhang;
-                    //        auxToolInfo.FixingDevices = PerformMatchedToolListFromExcel(holder.FromSpindelSideInterface, collets);
-                    //    }
-                    //}
-                    /*currentTool.HolderNames = auxToolAssembly.AssemblyHoldersList;
-                    currentTool.HolderSpindelSideInterface = auxToolAssembly.FromSpindelSideInterface;
-                    currentTool.HolderCutSideInterface = auxToolAssembly.FromCutSideInterface;*/
                 }
-                //else
-                //{
-
-                //    currentTool.HolderNames = new List<Holder>();
-                //    currentTool.HolderSpindelSideInterface = "";
-                //    currentTool.HolderCutSideInterface = "";*/
-                //}
-                //auxToolInfoContainer.Add(auxToolInfo);
+                else
+                {
+                    AuxToolAssembly emptyAuxToolAssembly = new AuxToolAssembly();
+                    projectTool.AuxToolAssembly = emptyAuxToolAssembly;
+                }
             }
         }
 
@@ -226,18 +207,6 @@ namespace TechDocInteractive
                 toolInfoContainer.Add(toolInfo);
             }
         } 
-
-        //List<string> PerformAuxToolInfo()
-        //{
-        //    List<string> auxToolInfo = new List<string>();
-
-        //    foreach (ProjectTool projectTool in projectTools)
-        //    {
-        //        List<Holder> holders = projectTool.AuxToolAssembly.AssemblyHoldersList;
-        //    }
-
-        //    return auxToolInfo;
-        //}
 
         List<string> PerformMatchedToolListFromExcel(string searchPattern, List<ExcelTool> excelTools)
         {

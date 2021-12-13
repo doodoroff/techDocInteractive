@@ -29,7 +29,7 @@
             </MenuItem>
 
         </Menu>
-        <TabControl Grid.Column="0" TabStripPlacement="Right" HorizontalAlignment="Left" Margin="5,25,0,20" Width="146">
+        <TabControl x:Name="leftMenuTabControl" Grid.Column="0" TabStripPlacement="Right" HorizontalAlignment="Left" Margin="5,25,0,20" Width="150" SelectionChanged="LeftMenuTabControl_SelectionChanged">
             <TabControl.Resources>
                 <Style TargetType="TabItem">
                     <Setter Property="HeaderTemplate">
@@ -45,11 +45,16 @@
                     </Setter>
                 </Style>
             </TabControl.Resources>
-            <TabItem x:Name="spCamManagmentTab" Header="SprutCAM Док.">
+            <TabItem x:Name="spCamManagmentTab" Header=" SprutCAM Док. ">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
                     <Button x:Name="button_openFile" Grid.Column="0" Content="Открыть файл (.xml)" HorizontalAlignment="Left" Margin="5,5,5,5" VerticalAlignment="Top" Width="100" Click="Button_openFile_Click" IsEnabled="False" Height="24" FontSize="10"/>
                     <Button x:Name="excelReportButton" Grid.Column="0" Content="Отчёт (.xlsx)" HorizontalAlignment="Left" Margin="5,5,5,5" VerticalAlignment="Top" Width="100" Height="25" Click="ExcelReportButton_Click" IsEnabled="False"/>
                     <Button x:Name="refreshButton" Grid.Column="0" Content="Обновить" HorizontalAlignment="Left" Margin="5,5,5,5" VerticalAlignment="Top" Width="100" Height="25" IsEnabled="False" Click="RefreshButton_Click"/>
+                </StackPanel>
+            </TabItem>
+            <TabItem x:Name="toolManagmentTab" Header=" Инструмент + " >
+                <StackPanel>
+                    
                 </StackPanel>
             </TabItem>
         </TabControl>
@@ -59,7 +64,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid x:Name="toolInfoGrid" AutoGenerateColumns="False" Grid.Column="0" HorizontalAlignment="Left" Margin="5,5,5,5" VerticalAlignment="Top" ScrollViewer.CanContentScroll="False" Visibility="Hidden" IsReadOnly="True">
+                    <DataGrid x:Name="toolInfoGrid" AutoGenerateColumns="False" Grid.Column="0" HorizontalAlignment="Left" Margin="5,5,5,5" VerticalAlignment="Top" ScrollViewer.CanContentScroll="False" Visibility="Hidden" IsReadOnly="True" >
                         <DataGrid.Columns>
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.CellTemplate>
@@ -91,7 +96,7 @@
                                             <Label Grid.Row="6" Content="Радиус реж. кромки:" VerticalAlignment="Center"/>
                                             <Label Grid.Row="7" Content="Угол реж. кромки:" VerticalAlignment="Center"/>
                                             <Label Grid.Row="8" Content="Кол-во зубов/пластин:" VerticalAlignment="Center"/>
-                                            <Label Grid.Row="9" Content="Вылет из оправки:" VerticalAlignment="Center"/>
+                                            <Label Grid.Row="9" Content="Вылет инструмента:" VerticalAlignment="Center"/>
                                             <Label Grid.Row="10" Content="" VerticalAlignment="Center"/>
                                             <Grid Name="gridAux" Grid.Row="11" VerticalAlignment="Bottom" Margin="0,0,0,0" IsHitTestVisible="False">
                                                 <Grid.ColumnDefinitions>
@@ -172,7 +177,7 @@
                                             <TextBox Grid.Row="8" Text="{Binding Path=SourceNumberOfTeeth}" VerticalAlignment="Center"/>
                                             <TextBox Grid.Row="9" Text="{Binding Path=SourceToolOverhang}" VerticalAlignment="Center"/>
                                             <Label Grid.Row="10" Content="Вспомогательный инструмент:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                            <Grid Grid.Row="11" Margin="0,0,0,0" ScrollViewer.CanContentScroll="False" ScrollViewer.VerticalScrollBarVisibility="Disabled" Height="{Binding ElementName=gridAux, Path=ActualHeight}">
+                                            <Grid Grid.Row="11" Margin="0,0,0,0" ScrollViewer.CanContentScroll="False" ScrollViewer.VerticalScrollBarVisibility="Disabled">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
@@ -234,7 +239,95 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="textBox_output" Grid.Column="0" HorizontalAlignment="Left" Margin="5,5,5,5" TextWrapping="Wrap" VerticalAlignment="Top" Width="Auto" MinWidth="500" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" VerticalScrollBarVisibility="Auto" Visibility="Hidden"/>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Name="techInfoHeaderRow" Height="150"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid x:Name="headerGrid" Grid.Column="0" Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="28"/>
+                            <RowDefinition Height="28"/>
+                            <RowDefinition Height="28"/>
+                            <RowDefinition Height="28"/>
+                            <RowDefinition Height="28"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Деталь:" Grid.Column="0" Grid.Row="0" VerticalAlignment="Top" Height="24" IsEnabled="False"/>
+                        <TextBlock Name="detailName_textBox" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24"/>
+                        <TextBlock Text="Станок:" Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" Height="24" IsEnabled="False"/>
+                        <TextBlock Name="detailMachinetool_textBlock" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24"/>
+                        <TextBlock Text="Машинное время:" Grid.Column="0" Grid.Row="2" VerticalAlignment="Top" Height="24" IsEnabled="False"/>
+                        <TextBlock Name="detailMachineTime_textBox" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24"/>
+                        <TextBlock Text="Вспомогательное время:" Grid.Column="0" Grid.Row="3" VerticalAlignment="Top" Height="24" IsEnabled="False"/>
+                        <TextBlock Name="detailAuxTime_textBlock" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24"/>
+                        <TextBlock Text="Штучное время:" Grid.Column="0" Grid.Row="4" VerticalAlignment="Top" Height="24" IsEnabled="False"/>
+                        <TextBlock Name="detailOpTime_textBlock" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24"/>
+                    </Grid>
+                    <Grid Grid.Column="0" Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <DataGrid x:Name="technologyInfoGrid" AutoGenerateColumns="False" Grid.Column="0" CanUserAddRows="False" ScrollViewer.CanContentScroll="False">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" MinWidth="160"/>
+                                                    <ColumnDefinition Width="*" MinWidth="400"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="Установ:" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24" IsEnabled="False"/>
+                                                <TextBlock Text="{Binding Path=SetupName}" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24"/>
+                                                <TextBlock Text="Машинное время:" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24"/>
+                                                <TextBlock Text="{Binding Path=SetupMachiningTimeInfo}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24"/>
+                                                <TextBlock Text="Вспомогательное время:" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24"/>
+                                                <TextBlock Text="{Binding Path=SetupAuxiliaryTimeInfo}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24"/>
+                                                <TextBlock Text="Штучное время:" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24"/>
+                                                <TextBlock Text="{Binding Path=SetupCommonTimeInfo}" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Top" Height="24"/>
+                                                <Grid Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <DataGrid x:Name="shiftDescription_DataGrid" ItemsSource="{Binding Path=Shifts}" Grid.Column="0" AutoGenerateColumns="False" CanUserAddRows="False" ScrollViewer.CanContentScroll="False" ColumnWidth="*">
+                                                        <DataGrid.Columns>
+                                                            <DataGridTemplateColumn>
+                                                                <DataGridTemplateColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <Grid>
+                                                                            <Grid.ColumnDefinitions>
+                                                                                <ColumnDefinition Width="*"/>
+                                                                            </Grid.ColumnDefinitions>
+                                                                            <Grid.RowDefinitions>
+                                                                                <RowDefinition Height="24"/>
+                                                                                <RowDefinition Height="*"/>
+                                                                            </Grid.RowDefinitions>
+                                                                            <!--<TextBlock x:Name="shiftDescriptionNote" Text="{Binding Path=ShiftLabel}" Grid.Column="0" Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Left"/>-->
+                                                                            <ListBox ItemsSource="{Binding Path=ShiftDescription}" Grid.Column="0" Grid.Row="1"/>
+                                                                        </Grid>
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellTemplate>
+                                                            </DataGridTemplateColumn>
+                                                        </DataGrid.Columns>
+                                                    </DataGrid>
+                                                </Grid>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
                 </Grid>
             </TabItem>
         </TabControl>

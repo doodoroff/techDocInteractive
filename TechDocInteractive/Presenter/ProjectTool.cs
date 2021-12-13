@@ -340,7 +340,7 @@ namespace TechDocInteractive
                     }
                     if (holders != null && holders.Count > 0) 
                     {
-                    string holderCutSideInterface = holders.Last().FromCutSideInterface;
+                        string holderCutSideInterface = holders.Last().FromCutSideInterface;
                         toolFromSpindelSideInterface = FormatFromSpindelSideInterface(value, holderCutSideInterface);
                     }
                     else
@@ -364,7 +364,7 @@ namespace TechDocInteractive
         ArrayList CreateAuxToolSpecification()
         {
             List<Holder> holders;
-            if (holderOverhangValuesList == null) 
+            if (holderOverhangValuesList == null)
             {
                 holders = auxToolAssembly.AssemblyHoldersList;
             }

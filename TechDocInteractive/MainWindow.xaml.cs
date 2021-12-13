@@ -72,14 +72,14 @@ namespace TechDocInteractive
             if (openFileDialog.ShowDialog() == true)
             {
                 xmlFilePath = openFileDialog.FileName;
-                textBox_output.Clear();
+                //textBox_output.Clear();
                 //AppSettings.SetCurrentFilePath("CurrentXmlFilePath", xmlFilePath);
                 try
                 {
                     //DisplayOperationInfo();
                     //DisplayToolsInfo();
                     toolInfoGrid.Visibility = Visibility.Visible;
-                    textBox_output.Visibility = Visibility.Visible;
+                    //textBox_output.Visibility = Visibility.Visible;
                     excelReportButton.IsEnabled = true;
                     refreshButton.IsEnabled = true;
                     spCamDoc_Tabs.Visibility = Visibility.Visible;
@@ -139,30 +139,13 @@ namespace TechDocInteractive
 
         void DisplayOperationInfo(ToolInfoPresenter toolInfoPresenter)
         {
-            //ToolInfoPresenter toolInfoPresenter = new ToolInfoPresenter(toolBaseFilePath, xmlFilePath, insertBaseFilePath);
-
             Operation operationInfo = toolInfoPresenter.OperationDescription;
-            textBox_output.Text += "Деталь: " + operationInfo.DetailName + "\n";
-            textBox_output.Text += "Станок: " + operationInfo.MachinetoolName + "\n";
-            textBox_output.Text += "\n";
-
-            foreach (var setup in operationInfo.Setups)
-            {
-                textBox_output.Text += "Установ: " + setup.SetupName + "\n";
-                textBox_output.Text += "Тпрог. (время обработки) = " + setup.SetupMachiningTime.ToString("0.00");
-                textBox_output.Text += "\n";
-                int shiftNumber = 0;
-                foreach (var shift in setup.Shifts)
-                {
-                    shiftNumber++;
-                    textBox_output.Text += "Переход " + shiftNumber + ":" + "\n";
-                    textBox_output.Text += "Тпрог. (время обработки) = " + shift.GetMachiningTime().ToString("0.00") + "\n";
-                    textBox_output.Text += "Инструмент: " + shift.Tool.Type + " " + shift.Tool.Name + "\n";
-                    textBox_output.Text += shift.ShiftDescription;
-                    textBox_output.Text += "\n"; 
-                }
-                textBox_output.Text += "\n";
-            }
+            detailName_textBox.Text = operationInfo.DetailName;
+            detailMachinetool_textBlock.Text = operationInfo.MachinetoolName;
+            detailMachineTime_textBox.Text = operationInfo.OperationMachiningTime;
+            detailAuxTime_textBlock.Text = operationInfo.OperationAuxiliaryTime;
+            detailOpTime_textBlock.Text = operationInfo.OperationCommonTime;
+            technologyInfoGrid.ItemsSource = operationInfo.Setups;
         }
 
         private void InsertComboBox1_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -244,7 +227,7 @@ namespace TechDocInteractive
             try
             {
                 toolInfoGrid.Visibility = Visibility.Visible;
-                textBox_output.Visibility = Visibility.Visible;
+                //textBox_output.Visibility = Visibility.Visible;
                 DisplayInfo();
             }
             catch (AppXmlAnalyzerExceptions ex)
@@ -257,6 +240,32 @@ namespace TechDocInteractive
         {
             SettingsWindow settingsWindow = new SettingsWindow();
             settingsWindow.ShowDialog();
+        }
+
+        private void LeftMenuTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            TabControl currentTab = sender as TabControl;
+            TabItem currentTabItem = currentTab.SelectedItem as TabItem;
+            string selectedTabName = currentTabItem.Header as string;
+
+            switch (selectedTabName)
+            {
+                case " SprutCAM Док. ":
+                    {
+                        if (toolInfoPresenter != null)
+                        {
+                            spCamDoc_Tabs.Visibility = Visibility.Visible;
+                        }
+                        break;
+                    }
+                case " Инструмент + ":
+                    {
+                        spCamDoc_Tabs.Visibility = Visibility.Collapsed;
+                        break;
+                    }
+                default:
+                    break;
+            }
         }
     }
 }

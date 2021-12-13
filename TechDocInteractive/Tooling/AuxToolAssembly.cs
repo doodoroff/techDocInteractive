@@ -37,7 +37,17 @@ namespace TechDocInteractive
 
         public string HolderCode
         {
-            get { return holderCode.Trim().Replace(',', '.'); }
+            get
+            {
+                if (holderCode != null)
+                {
+                    return holderCode.Trim().Replace(',', '.');
+                }
+                else
+                {
+                    return "0";
+                }
+            }
 
             set { this.holderCode = value; }
         }
@@ -47,21 +57,20 @@ namespace TechDocInteractive
             get { return fromSpindelSideInterface; }
 
             set { this.fromSpindelSideInterface = value; }
-        }
-
-        public string FromCutSideInterface
-        {
-            get { return fromCutSideInterface; }
-
-            set { fromCutSideInterface = value; }
         }*/
+
+        //public string FromCutSideInterface
+        //{
+        //    get { return fromCutSideInterface; }
+        //}
 
         public List<Holder> AssemblyHoldersList
         {
-            get {
-                    assemblyHoldersList = GenerateHolderList();
-                    return assemblyHoldersList;
-                }
+            get
+            {
+                assemblyHoldersList = GenerateHolderList();
+                return assemblyHoldersList;
+            }
 
             //set { assemblyHoldersList = value; }
         }
@@ -70,44 +79,14 @@ namespace TechDocInteractive
         {
             List<Holder> holders = new List<Holder>();
 
-            if (name == null || description == null) 
-            {
-                return holders;
-            }
-
-            string[] holderInterfaces = AddHolderInterfaces(description);
-            string[] holderNames = AddHolderNames(name);
-            string[] holderDescriptions = AddHolderDescriptions(name);
-
-            if ((holderNames.Count() * 2) == holderInterfaces.Count()) 
-            {
-                for (int i = 0; i < holderNames.Count(); i++)
-                {
-                    Holder holder = new Holder();
-                    holder.Name = holderNames[i];
-                    if (i >= holderDescriptions.Length) 
-                    {
-                        holder.Description = "Тип держателя не распознан";
-                    }
-                    else
-                    {
-                        holder.Description = holderDescriptions[i];
-                    }
-                    holder.FromSpindelSideInterface = holderInterfaces[i * 2];
-                    holder.FromCutSideInterface = holderInterfaces[(i * 2) + 1];
-                    holders.Add(holder);
-                }
-            }
-
-            return holders;
-        }
-
-        public List<Holder> AssignHolderOverhangAndGenerateHolderList(List<double> holderOverhangList)
-        {
-            List<Holder> holders = new List<Holder>();
-
             if (name == null || description == null)
             {
+                Holder holder = new Holder();
+                holder.Name = "Инструмент не найден в базе SprutCam";
+                holder.Description = "";
+                holder.FromCutSideInterface = "";
+                holder.FromSpindelSideInterface = "";
+                holders.Add(holder);
                 return holders;
             }
 
@@ -121,10 +100,6 @@ namespace TechDocInteractive
                 {
                     Holder holder = new Holder();
                     holder.Name = holderNames[i];
-                    if (holderOverhangList.Count == holderNames.Length) 
-                    {
-                        holder.Overhang = holderOverhangList[i];
-                    }
                     if (i >= holderDescriptions.Length)
                     {
                         holder.Description = "Тип держателя не распознан";
@@ -136,6 +111,40 @@ namespace TechDocInteractive
                     holder.FromSpindelSideInterface = holderInterfaces[i * 2];
                     holder.FromCutSideInterface = holderInterfaces[(i * 2) + 1];
                     holders.Add(holder);
+                }
+            }
+            else
+            {
+                Holder errorHolder = new Holder();
+                errorHolder.Name = "Тип держателя не распознан";
+                errorHolder.Description = "!!! Ошибка соответствия интерфейсов держателя";
+                holders.Add(errorHolder);
+            }
+
+            return holders;
+        }
+
+        public List<Holder> AssignHolderOverhangAndGenerateHolderList(List<double> holderOverhangList)
+        {
+            List<Holder> holders = new List<Holder>();
+            holders = GenerateHolderList();
+
+            if (holderOverhangList.Count != 0) 
+            {
+                for (int i = 0; i < holders.Count; i++)
+                {
+                    holders[i].Overhang = holderOverhangList[i];
+
+                    if (holders[i].Description.Contains("SK50") || holders[i].Description.Contains("SK40"))
+                    {
+                        double holderNeckLength = 16;
+                        holders[i].Overhang += holderNeckLength;
+                    }
+                    else if (holders[i].Description.Contains("HSK-A100"))
+                    {
+                        double holderNeckLength = 29;
+                        holders[i].Overhang += holderNeckLength;
+                    }
                 }
             }
 
